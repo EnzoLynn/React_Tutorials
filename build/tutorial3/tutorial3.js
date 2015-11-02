@@ -47,7 +47,7 @@ var CommentList5 = React.createClass({
       React.createElement(
         Comment,
         { author: "Pete Hunt" },
-        "This is one comment"
+        "This is one comment 1"
       ),
       React.createElement(
         Comment,
@@ -58,7 +58,20 @@ var CommentList5 = React.createClass({
   }
 });
 
+var CommentList6 = React.createClass({
+  displayName: "CommentList6",
+
+  render: function render() {
+    return React.createElement(
+      CommentList5,
+      { className: "commentBox" },
+      "123123"
+    );
+  }
+});
+
 $(function () {
   ReactDOM.render(React.createElement(CommentBox, null), $('#CommentBox')[0]);
   ReactDOM.render(React.createElement(CommentList5, null), $('#CommentList5')[0]);
+  ReactDOM.render(React.createElement(CommentList6, null), $('#CommentList6')[0]);
 });

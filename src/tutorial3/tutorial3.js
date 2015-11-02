@@ -36,6 +36,17 @@ var CommentList5 = React.createClass({
   }
 });
 
+
+var CommentList6 = React.createClass({
+	render: function() {
+		return (
+			<CommentList5 className="commentBox">
+       123123
+      </CommentList5>
+		);
+	}
+});
+
 $(function() { 
 	ReactDOM.render(
 		<CommentBox />,
@@ -44,5 +55,9 @@ $(function() {
 	ReactDOM.render(
 		<CommentList5 />,
 		$('#CommentList5')[0]
+	);
+	ReactDOM.render(
+		<CommentList6 />,
+		$('#CommentList6')[0]
 	);
 });
