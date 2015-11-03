@@ -63,9 +63,10 @@ var CommentList6 = React.createClass({
 
   render: function render() {
     return React.createElement(
-      CommentList5,
-      { className: "commentBox" },
-      "123123"
+      "div",
+      null,
+      "合并模式",
+      React.createElement(CommentList5, { className: "commentBox" })
     );
   }
 });

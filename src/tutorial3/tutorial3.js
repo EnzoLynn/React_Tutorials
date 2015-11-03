@@ -40,9 +40,10 @@ var CommentList5 = React.createClass({
 var CommentList6 = React.createClass({
 	render: function() {
 		return (
-			<CommentList5 className="commentBox">
-       123123
+      <div>合并模式
+			<CommentList5 className="commentBox"> 
       </CommentList5>
+      </div>
 		);
 	}
 });
