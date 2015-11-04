@@ -36,7 +36,8 @@ var SearchForm = React.createClass({
 	displayName: 'SearchForm',
 
 	filterList: function filterList() {
-		this.props.onFilter();
+
+		this.props.onFilter($('#checkbox').prop('checked'));
 	},
 	render: function render() {
 		return React.createElement(
@@ -50,7 +51,7 @@ var SearchForm = React.createClass({
 			React.createElement(
 				'div',
 				{ className: 'form-group' },
-				React.createElement('input', { type: 'checkbox', onChange: this.filterList }),
+				React.createElement('input', { id: 'checkbox', type: 'checkbox', onChange: this.filterList }),
 				'Only show products in stock'
 			)
 		);
@@ -145,9 +146,15 @@ var FilterProduct = React.createClass({
 			products: PRODUCTS
 		};
 	},
-	handleFilter: function handleFilter() {
+	handleFilter: function handleFilter(checked) {
 
-		var products = this.state.products;
+		var products = PRODUCTS;
+		if (!checked) {
+			this.setState({
+				products: products
+			});
+			return;
+		};
 		var newproducts = [];
 		products.forEach(function (product, key) {
 			if (!product.stocked) {

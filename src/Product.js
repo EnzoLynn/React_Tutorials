@@ -33,7 +33,8 @@ var PRODUCTS = [{
 
 var SearchForm = React.createClass({
 	filterList: function() {
-		this.props.onFilter();
+	 
+		this.props.onFilter($('#checkbox').prop('checked'));
 	},
 	render: function() {
 		return (
@@ -42,7 +43,7 @@ var SearchForm = React.createClass({
 					<input  type="text"  placeholder="Search..."/> 
 				</div>
 				<div className="form-group">
-					<input  type="checkbox" onChange={this.filterList}/>Only show products in stock
+					<input id="checkbox"  type="checkbox" onChange={this.filterList}/>Only show products in stock
 				</div> 
 			</div>
 		);
@@ -107,9 +108,15 @@ var FilterProduct = React.createClass({
 			products: PRODUCTS
 		};
 	},
-	handleFilter: function() {
+	handleFilter: function(checked) {
 
-		var products = this.state.products;
+		var products = PRODUCTS; 
+		if (!checked) {
+			this.setState({
+				products: products
+			});
+			return;
+		}; 
 		var newproducts = [];
 		products.forEach(function(product, key) {
 			if (!product.stocked) {
