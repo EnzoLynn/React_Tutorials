@@ -32,17 +32,28 @@ var PRODUCTS = [{
 
 
 var SearchForm = React.createClass({
-	filterList: function() {
-	 
-		this.props.onFilter($('#checkbox').prop('checked'));
+	filterList: function(e) {
+		e.stopPropagation();
+		var target = e.target;
+		if (target.tagName.toLowerCase() == "input") {
+			if (target.type.toLowerCase() == "checkbox") {
+				this.props.onFilter($('#checkbox').prop('checked'));
+				return;
+			}
+			if (target.type.toLowerCase() == "text") {
+				this.props.onFilter($(target).val());
+				return;
+			};
+		};
+
 	},
 	render: function() {
 		return (
-			<div> 
-				<div className="form-group">
-					<input  type="text"  placeholder="Search..."/> 
+			<div className="row"> 
+				<div className="form-group col-md-12">
+					<input  type="text" onKeyUp={this.filterList} placeholder="Search..."/> 
 				</div>
-				<div className="form-group">
+				<div className="form-group col-md-12">
 					<input id="checkbox"  type="checkbox" onChange={this.filterList}/>Only show products in stock
 				</div> 
 			</div>
@@ -110,23 +121,49 @@ var FilterProduct = React.createClass({
 	},
 	handleFilter: function(checked) {
 
-		var products = PRODUCTS; 
-		if (!checked) {
+
+		var products = PRODUCTS;
+		if (typeof checked == "boolean") {
+			if (!checked) {
+				
+				this.setState({
+					products: products
+				});
+				return;
+			}
+			var newproducts = [];
+			products.forEach(function(product, key) {
+				if (!product.stocked) {
+					newproducts.push(product);
+				}
+
+			});
 			this.setState({
-				products: products
+				products: newproducts
 			});
 			return;
-		}; 
-		var newproducts = [];
-		products.forEach(function(product, key) {
-			if (!product.stocked) {
-				 newproducts.push(product); 
-			}
-			
-		}); 
-		this.setState({
-			products: newproducts
-		});
+		}
+
+		if (typeof checked == "string") { 
+			if (checked=="") { 
+				this.setState({
+					products: products
+				});
+				return;
+			} 
+			var newproducts = [];
+			products.forEach(function(product, key) {
+				if (product.name.toLowerCase().indexOf(checked.toLowerCase()) != -1) {
+					newproducts.push(product);
+				}
+
+			});
+			this.setState({
+				products: newproducts
+			});
+			return;
+		};
+
 	},
 	render: function() {
 

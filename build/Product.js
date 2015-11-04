@@ -35,22 +35,32 @@ var PRODUCTS = [{
 var SearchForm = React.createClass({
 	displayName: 'SearchForm',
 
-	filterList: function filterList() {
-
-		this.props.onFilter($('#checkbox').prop('checked'));
+	filterList: function filterList(e) {
+		e.stopPropagation();
+		var target = e.target;
+		if (target.tagName.toLowerCase() == "input") {
+			if (target.type.toLowerCase() == "checkbox") {
+				this.props.onFilter($('#checkbox').prop('checked'));
+				return;
+			}
+			if (target.type.toLowerCase() == "text") {
+				this.props.onFilter($(target).val());
+				return;
+			};
+		};
 	},
 	render: function render() {
 		return React.createElement(
 			'div',
-			null,
+			{ className: 'row' },
 			React.createElement(
 				'div',
-				{ className: 'form-group' },
-				React.createElement('input', { type: 'text', placeholder: 'Search...' })
+				{ className: 'form-group col-md-12' },
+				React.createElement('input', { type: 'text', onKeyUp: this.filterList, placeholder: 'Search...' })
 			),
 			React.createElement(
 				'div',
-				{ className: 'form-group' },
+				{ className: 'form-group col-md-12' },
 				React.createElement('input', { id: 'checkbox', type: 'checkbox', onChange: this.filterList }),
 				'Only show products in stock'
 			)
@@ -149,21 +159,44 @@ var FilterProduct = React.createClass({
 	handleFilter: function handleFilter(checked) {
 
 		var products = PRODUCTS;
-		if (!checked) {
+		if (typeof checked == "boolean") {
+			if (!checked) {
+
+				this.setState({
+					products: products
+				});
+				return;
+			}
+			var newproducts = [];
+			products.forEach(function (product, key) {
+				if (!product.stocked) {
+					newproducts.push(product);
+				}
+			});
 			this.setState({
-				products: products
+				products: newproducts
+			});
+			return;
+		}
+
+		if (typeof checked == "string") {
+			if (checked == "") {
+				this.setState({
+					products: products
+				});
+				return;
+			}
+			var newproducts = [];
+			products.forEach(function (product, key) {
+				if (product.name.toLowerCase().indexOf(checked.toLowerCase()) != -1) {
+					newproducts.push(product);
+				}
+			});
+			this.setState({
+				products: newproducts
 			});
 			return;
 		};
-		var newproducts = [];
-		products.forEach(function (product, key) {
-			if (!product.stocked) {
-				newproducts.push(product);
-			}
-		});
-		this.setState({
-			products: newproducts
-		});
 	},
 	render: function render() {
 
