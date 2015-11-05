@@ -57,7 +57,36 @@ $(function() {
 	// good
 	const [first, second] = arr;
 	console.log(first);
- 
+ 	
+ 	const user = {
+ 		firstName : 'aaa',
+ 		lastName:'bbb'
+ 	};
+ 	// best
+	function getFullName({ firstName, lastName }) {
+		console.log(firstName);
+	}
+	getFullName(user);
 
+	var input = {
+		left:1,
+		right:2,
+		top:3,
+		bottom:4 
+	};
+	// good
+	function processInput({ left, right, top, bottom}) {
+	 //const { left, right, top, bottom} = input;
+	 return { left, right, top, bottom};
+	}
 
+	const { left, right,bottom } = processInput(input);
+
+	console.log(left+'='+bottom);
+
+		// good
+	var dd = [1, 2, 3].map((x) => {
+	  console.log(x);
+	  return x * x;
+	}); 
 });
