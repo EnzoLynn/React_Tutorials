@@ -165,8 +165,7 @@ var FilterProduct = React.createClass({
 		};
 
 	},
-	render: function() {
-
+	render: function() { 
 		return (
 			<div>
 			<SearchForm onFilter={this.handleFilter}></SearchForm>
