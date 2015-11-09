@@ -20,6 +20,34 @@ define(function (require, exports, module) {
 	};
 	var helper = {
 		db: null,
+		createTable: function createTable(tableName, fields, constraint) {
+
+			if (db == null) {
+				openDB();
+			}
+
+			var sql = 'CREATE TABLE IF NOT EXISTS ' + tableName + ' (';
+
+			for (i in fields) {
+
+				var key = "";
+
+				if (typeof constraint != "undefined" && typeof constraint[fields[i]] != "undefined") {
+
+					key = " " + constraint[fields[i]];
+				}
+
+				sql += fields[i] + key + ",";
+			}
+
+			sql = sql.substr(0, sql.length - 1);
+
+			sql += ")";
+
+			//log(sql);
+
+			execSql(sql);
+		},
 		/**
    * [openDatabase description]
    * @param  {[type]} opts [description]
@@ -148,8 +176,37 @@ define(function (require, exports, module) {
 				return false;
 			});
 		},
-		update: function update() {},
-		'delete': function _delete() {}
+		update: function update() {
+			var me = this;
+			var sql = "update " + tableName + " set ";
+
+			for (i in setFields) {
+
+				sql += setFields[i] + "=?,";
+			}
+
+			sql = sql.substr(0, sql.length - 1);
+
+			if (typeof whereStr != "undefined" && typeof wherParams != "undefined" && whereStr != "") {
+
+				sql += " where " + whereStr;
+
+				setParams = setParams.concat(wherParams);
+			}
+
+			execSql(sql, setParams);
+		},
+		'delete': function _delete() {
+			var me = this;
+			var sql = "delete from " + tableName;
+
+			if (typeof whereStr != "undefined" && typeof wherParams != "undefined" && whereStr != "") {
+
+				sql += " where " + whereStr;
+			}
+
+			execSql(sql, wherParams);
+		}
 	};
 
 	module.exports = helper;
