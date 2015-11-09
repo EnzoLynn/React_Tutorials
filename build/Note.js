@@ -5,7 +5,7 @@ define(function (require, exports, module) {
 	dbHelper.openDatabase();
 
 	dbHelper.select('LOGS', '*', {
-		"id": 1
+		"id": 2
 	}, function (message) {
 		console.log(message);
 		if (message.success) {
@@ -14,6 +14,15 @@ define(function (require, exports, module) {
 			};
 		};
 	});
+	// dbHelper.update('LOGS',{log:'update'},{
+	// 	id:2
+	// }, function(message) {
+	// 	console.log(message);		
+	// });
+	//dbHelper.delete('LOGS',{"id": 1});
+	// dbHelper.createTable('test',{id:"integer primary key autoincrement",name:"not null"},function(message){
+	// 	 console.log(message);
+	// });
 
 	// dbHelper.insert('LOGS',{
 	// 	id:3,

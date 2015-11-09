@@ -16,37 +16,41 @@ define(function(require, exports, module) {
 	};
 	let helper = {
 		db: null,
-		createTable: function(tableName, fields, constraint) {
-
-
-
-			if (db == null) {
-				openDB();
+		createTable: function(tableName, fields, callback) {
+			const me = this;
+			if (me.db == null) {
+				me.openDatabase();
 			}
 
-			var sql = 'CREATE TABLE IF NOT EXISTS ' + tableName + ' (';
+			let sql = `CREATE TABLE IF NOT EXISTS ${tableName} (`;
 
-			for (i in fields) {
-
-				var key = "";
-
-				if (typeof(constraint) != "undefined" && typeof(constraint[fields[i]]) != "undefined") {
-
-					key = " " + constraint[fields[i]];
-
-				}
-
-				sql += fields[i] + key + ",";
-
+			for (let key in fields) {
+				let temp = fields[key] == "" ? "null" : fields[key];
+				sql += `${key} ${temp},`;
 			}
 
 			sql = sql.substr(0, sql.length - 1);
 
-			sql += ")";
-
-			//log(sql);
-
-			execSql(sql);
+			sql += ")"; 
+			me.executeSql(sql, [], function(tx, result) {
+				if (typeof(callback) == 'function') {
+					callback(new message({
+						success: true,
+						msg: 'ok',
+						result: result
+					}));
+				}
+				return true;
+			}, function(tx, errmsg) {
+				if (typeof(callback) == 'function') {
+					callback(new message({
+						success: false,
+						msg: errmsg,
+						result: null
+					}));
+				}
+				return false;
+			});
 
 		},
 		/**
@@ -169,43 +173,80 @@ define(function(require, exports, module) {
 				return false;
 			});
 		},
-		update: function() {
+		update: function(tableName,fileds,whereObj, callback) {
 			const me = this;
-			var sql = "update " + tableName + " set ";
+			let sql = "update " + tableName + " set ";
+			let params = [],where=' where ';
 
-			for (i in setFields) {
-
-				sql += setFields[i] + "=?,";
-
+			for (let key in fileds) {
+				sql += `${key}=?,`;
+				params.push(fileds[key]);
 			}
-
 			sql = sql.substr(0, sql.length - 1);
 
-			if (typeof(whereStr) != "undefined" && typeof(wherParams) != "undefined"
-
-				&& whereStr != "") {
-
-				sql += " where " + whereStr;
-
-				setParams = setParams.concat(wherParams);
-
+			if (typeof(whereObj) != "undefined") {
+				for (let key in whereObj) {
+					where += `${key}=? and `;
+					params.push(whereObj[key]);
+				}
+				where = where.substring(0, where.length - 4);
+				sql += where;
 			}
 
-			execSql(sql, setParams);
+			me.executeSql(sql, params, function(tx, result) {
+				if (typeof(callback) == 'function') {
+					callback(new message({
+						success: true,
+						msg: 'ok',
+						result: result
+					}));
+				}
+				return true;
+			}, function(tx, errmsg) {
+				if (typeof(callback) == 'function') {
+					callback(new message({
+						success: false,
+						msg: errmsg,
+						result: null
+					}));
+				}
+				return false;
+			});
 		},
-		delete: function() {
+		delete: function(tableName, whereObj, callback) {
 			const me = this;
-			var sql = "delete from " + tableName;
+			let sql = "delete from " + tableName;
+			let where = ' where ';
+			let params = [];
+			if (typeof(whereObj) == 'object') {
+				for (let key in whereObj) {
 
-			if (typeof(whereStr) != "undefined" && typeof(wherParams) != "undefined"
+					where += `${key}=? and `;
+					params.push(whereObj[key]);
+				}
+				where = where.substring(0, where.length - 4);
+				sql += where;
+			};
 
-				&& whereStr != "") {
-
-				sql += " where " + whereStr;
-
-			}
-
-			execSql(sql, wherParams);
+			me.executeSql(sql, params, function(tx, result) {
+				if (typeof(callback) == 'function') {
+					callback(new message({
+						success: true,
+						msg: 'ok',
+						result: result
+					}));
+				}
+				return true;
+			}, function(tx, errmsg) {
+				if (typeof(callback) == 'function') {
+					callback(new message({
+						success: false,
+						msg: errmsg,
+						result: null
+					}));
+				}
+				return false;
+			});
 		}
 	};
 

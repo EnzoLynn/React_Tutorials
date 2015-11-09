@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 define(function (require, exports, module) {
 	var jquery = require('jquery.min');
@@ -20,33 +20,41 @@ define(function (require, exports, module) {
 	};
 	var helper = {
 		db: null,
-		createTable: function createTable(tableName, fields, constraint) {
-
-			if (db == null) {
-				openDB();
+		createTable: function createTable(tableName, fields, callback) {
+			var me = this;
+			if (me.db == null) {
+				me.openDatabase();
 			}
 
-			var sql = 'CREATE TABLE IF NOT EXISTS ' + tableName + ' (';
+			var sql = "CREATE TABLE IF NOT EXISTS " + tableName + " (";
 
-			for (i in fields) {
-
-				var key = "";
-
-				if (typeof constraint != "undefined" && typeof constraint[fields[i]] != "undefined") {
-
-					key = " " + constraint[fields[i]];
-				}
-
-				sql += fields[i] + key + ",";
+			for (var key in fields) {
+				var temp = fields[key] == "" ? "null" : fields[key];
+				sql += key + " " + temp + ",";
 			}
 
 			sql = sql.substr(0, sql.length - 1);
 
 			sql += ")";
-
-			//log(sql);
-
-			execSql(sql);
+			me.executeSql(sql, [], function (tx, result) {
+				if (typeof callback == 'function') {
+					callback(new message({
+						success: true,
+						msg: 'ok',
+						result: result
+					}));
+				}
+				return true;
+			}, function (tx, errmsg) {
+				if (typeof callback == 'function') {
+					callback(new message({
+						success: false,
+						msg: errmsg,
+						result: null
+					}));
+				}
+				return false;
+			});
 		},
 		/**
    * [openDatabase description]
@@ -96,7 +104,7 @@ define(function (require, exports, module) {
 					return false;
 				});
 			}, function (tx, errmsg) {
-				console.log('transaction errer: ' + errmsg);
+				console.log("transaction errer: " + errmsg);
 				return false;
 			}, function (tx, result) {
 				return true;
@@ -104,7 +112,7 @@ define(function (require, exports, module) {
 		},
 		insert: function insert(tableName, objs, callback) {
 			var me = this;
-			var prefix = 'INSERT INTO ' + tableName + ' (';
+			var prefix = "INSERT INTO " + tableName + " (";
 			var mid = ') values (';
 			var suffix = ')';
 			var fields = '';
@@ -143,14 +151,14 @@ define(function (require, exports, module) {
 
 			var me = this;
 			var sel = selectFileds == '' ? '*' : selectFileds;
-			var prefix = 'SELECT ' + sel + ' FROM ' + tableName + ' ';
+			var prefix = "SELECT " + sel + " FROM " + tableName + " ";
 			var where = ' where ';
 			var params = [];
 			var sql = prefix;
 			if (typeof whereObj == 'object') {
 				for (var key in whereObj) {
 
-					where += key + '=? and ';
+					where += key + "=? and ";
 					params.push(whereObj[key]);
 				}
 				where = where.substring(0, where.length - 4);
@@ -176,36 +184,81 @@ define(function (require, exports, module) {
 				return false;
 			});
 		},
-		update: function update() {
+		update: function update(tableName, fileds, whereObj, callback) {
 			var me = this;
 			var sql = "update " + tableName + " set ";
+			var params = [],
+			    where = ' where ';
 
-			for (i in setFields) {
-
-				sql += setFields[i] + "=?,";
+			for (var key in fileds) {
+				sql += key + "=?,";
+				params.push(fileds[key]);
 			}
-
 			sql = sql.substr(0, sql.length - 1);
 
-			if (typeof whereStr != "undefined" && typeof wherParams != "undefined" && whereStr != "") {
-
-				sql += " where " + whereStr;
-
-				setParams = setParams.concat(wherParams);
+			if (typeof whereObj != "undefined") {
+				for (var key in whereObj) {
+					where += key + "=? and ";
+					params.push(whereObj[key]);
+				}
+				where = where.substring(0, where.length - 4);
+				sql += where;
 			}
 
-			execSql(sql, setParams);
+			me.executeSql(sql, params, function (tx, result) {
+				if (typeof callback == 'function') {
+					callback(new message({
+						success: true,
+						msg: 'ok',
+						result: result
+					}));
+				}
+				return true;
+			}, function (tx, errmsg) {
+				if (typeof callback == 'function') {
+					callback(new message({
+						success: false,
+						msg: errmsg,
+						result: null
+					}));
+				}
+				return false;
+			});
 		},
-		'delete': function _delete() {
+		"delete": function _delete(tableName, whereObj, callback) {
 			var me = this;
 			var sql = "delete from " + tableName;
+			var where = ' where ';
+			var params = [];
+			if (typeof whereObj == 'object') {
+				for (var key in whereObj) {
 
-			if (typeof whereStr != "undefined" && typeof wherParams != "undefined" && whereStr != "") {
+					where += key + "=? and ";
+					params.push(whereObj[key]);
+				}
+				where = where.substring(0, where.length - 4);
+				sql += where;
+			};
 
-				sql += " where " + whereStr;
-			}
-
-			execSql(sql, wherParams);
+			me.executeSql(sql, params, function (tx, result) {
+				if (typeof callback == 'function') {
+					callback(new message({
+						success: true,
+						msg: 'ok',
+						result: result
+					}));
+				}
+				return true;
+			}, function (tx, errmsg) {
+				if (typeof callback == 'function') {
+					callback(new message({
+						success: false,
+						msg: errmsg,
+						result: null
+					}));
+				}
+				return false;
+			});
 		}
 	};
 
