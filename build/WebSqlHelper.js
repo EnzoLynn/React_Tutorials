@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   * @param  {[type]} options.msg     [description]
   * @param  {[type]} options.result  [description]
   * @return {[type]}                 [description]
+  * @example  var dbHelper = require('build/WebSqlHelper');
   */
 	var message = function message(_ref) {
 		var success = _ref.success;
@@ -20,6 +21,18 @@ define(function (require, exports, module) {
 	};
 	var helper = {
 		db: null,
+		/**
+   * [createTable description]
+   * @param  {[type]}   tableName [description]
+   * @param  {[type]}   fields    [description]
+   * @param  {Function} callback  [description]
+   * @return {[type]}             [description]
+         *@example dbHelper.createTable('test', {id: "integer primary key autoincrement",
+  	name: "not null"
+  }, function(message) {
+  	console.log(message);
+  });
+   */
 		createTable: function createTable(tableName, fields, callback) {
 			var me = this;
 			if (me.db == null) {
@@ -61,6 +74,7 @@ define(function (require, exports, module) {
    * @param  {[type]} opts [description]
    * databaseName,version,description,size
    * @return {[type]}      [description]
+   * @example dbHelper.openDatabase();
    */
 		openDatabase: (function (_openDatabase) {
 			function openDatabase(_x) {
@@ -84,6 +98,19 @@ define(function (require, exports, module) {
 			me.db = openDatabase(def.databaseName, def.version, def.description, def.size);
 			return me.db;
 		}),
+		/**
+   * [executeSql description]
+   * @param  {[type]} sql    [description]
+   * @param  {[type]} params [description]
+   * @param  {[type]} sucFun [description]
+   * @param  {[type]} errFun [description]
+   * @return {[type]}        [description]
+   * @example dbHelper.executeSql('select * from logs where id=?',[3],function(tx, result){
+             	console.log(result);
+           },function(tx,errMsg){
+             	console.log(errMsg);
+           });
+   */
 		executeSql: function executeSql(sql, params, sucFun, errFun) {
 			var me = this;
 			if (me.db == null) {
@@ -110,6 +137,19 @@ define(function (require, exports, module) {
 				return true;
 			});
 		},
+		/**
+   * [insert description]
+   * @param  {[type]}   tableName [description]
+   * @param  {[type]}   objs      [description]
+   * @param  {Function} callback  [description]
+   * @return {[type]}             [description]
+   * @example dbHelper.insert('LOGS',{
+                    id:3,
+                   log:(new Date()).getTime()
+                     },function(message){
+             	console.log(message);
+           });
+   */
 		insert: function insert(tableName, objs, callback) {
 			var me = this;
 			var prefix = "INSERT INTO " + tableName + " (";
@@ -147,6 +187,24 @@ define(function (require, exports, module) {
 				return false;
 			});
 		},
+		/**
+   * [select description]
+   * @param  {[type]}   tableName    [description]
+   * @param  {[type]}   selectFileds [description]
+   * @param  {[type]}   whereObj     [description]
+   * @param  {Function} callback     [description]
+   * @return {[type]}                [description]
+         * @example dbHelper.select('LOGS', '*', {				"id": 2
+  	},
+  	function(message) {
+  		console.log(message);
+  		if (message.success) {
+  			for (var i = 0; i < message.result.rows.length; i++) {
+  				console.log(message.result.rows[i]);
+  			};
+  		};
+  	});
+   */
 		select: function select(tableName, selectFileds, whereObj, callback) {
 
 			var me = this;
@@ -184,6 +242,20 @@ define(function (require, exports, module) {
 				return false;
 			});
 		},
+		/**
+   * [update description]
+   * @param  {[type]}   tableName [description]
+   * @param  {[type]}   fileds    [description]
+   * @param  {[type]}   whereObj  [description]
+   * @param  {Function} callback  [description]
+   * @return {[type]}             [description]
+         * @example dbHelper.update('LOGS', {			log: 'update'
+  }, {
+  	id: 2
+  }, function(message) {
+  	console.log(message);
+  });
+   */
 		update: function update(tableName, fileds, whereObj, callback) {
 			var me = this;
 			var sql = "update " + tableName + " set ";
@@ -225,6 +297,15 @@ define(function (require, exports, module) {
 				return false;
 			});
 		},
+		/**
+   * [delete description]
+   * @param  {[type]}   tableName [description]
+   * @param  {[type]}   whereObj  [description]
+   * @param  {Function} callback  [description]
+   * @return {[type]}             [description]
+         * @example dbHelper.delete('LOGS', {			"id": 1
+  });		
+   */
 		"delete": function _delete(tableName, whereObj, callback) {
 			var me = this;
 			var sql = "delete from " + tableName;

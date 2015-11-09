@@ -18,7 +18,7 @@ define(function(require, exports, module) {
 	// }, function(message) {
 	// 	console.log(message);		 
 	// });
-	//dbHelper.delete('LOGS',{"id": 1});
+	// dbHelper.delete('LOGS',{"id": 1});
 	// dbHelper.createTable('test',{id:"integer primary key autoincrement",name:"not null"},function(message){
 	// 	 console.log(message);
 	// });
