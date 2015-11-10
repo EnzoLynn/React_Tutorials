@@ -67,7 +67,6 @@ define(function(require, exports, module) {
 		},
 		render: function() {
 			return (
-			<div>
 				<tr>
 				<th colSpan='3' className='text-center'>
 					备忘录
@@ -76,15 +75,10 @@ define(function(require, exports, module) {
 					</span>
 				</th>
 				</tr>
-				<tr>
-					<th>
-					<FilterBar></FilterBar>
-					</th>
-				</tr>
-			</div>
 			);
 		}
 	});
+
 
 	let NoteList = React.createClass({
 		getInitialState: function() {
@@ -120,7 +114,10 @@ define(function(require, exports, module) {
 			return (
 
 				<table className='NoteList table table-hover table-striped'>
-						<thead><NoteHead/></thead>
+						<thead>
+						<NoteHead/>
+						<FilterBar/>
+						</thead>
 						<tbody>
 						{rows}
 						</tbody>
@@ -133,16 +130,42 @@ define(function(require, exports, module) {
 	let FilterBar = React.createClass({
 		render: function() {
 			return (
-				<div>
-					<input  className='btn_search' type="search" placeholder='搜索...'/>
-				</div>
+				<tr>
+					<th colSpan='3' >
+					<div className="input-group btn_search">  
+ 						<span className="input-group-addon" id="basic-addon1">Search</span>
+  						<input type="search" className=" form-control" placeholder="搜索..." /> 
+					</div>
+					</th>
+				</tr>
+
 			);
 		}
 	});
 	let StatusBar = React.createClass({
+		getInitialState: function() {
+			return {
+				count: 0
+			};
+		},
+		loadCountFromWebsql: function() {
+			var me = this;
+			dbHelper.select('Notes', 'count(*) as count', false, function(message) { 
+				if (message.success) { 
+					me.setState({
+						count: message.result.rows[0].count
+					});
+				};
+			});
+		},
+		componentDidMount: function() {
+			this.loadCountFromWebsql();
+		},
 		render: function() {
 			return (
-				<div />
+				<div>
+					{this.state.count}
+				</div>
 			);
 		}
 	});

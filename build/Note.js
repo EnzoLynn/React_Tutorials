@@ -79,29 +79,16 @@ define(function (require, exports, module) {
 		addNote: function addNote() {},
 		render: function render() {
 			return React.createElement(
-				'div',
+				'tr',
 				null,
 				React.createElement(
-					'tr',
-					null,
+					'th',
+					{ colSpan: '3', className: 'text-center' },
+					'备忘录',
 					React.createElement(
-						'th',
-						{ colSpan: '3', className: 'text-center' },
-						'备忘录',
-						React.createElement(
-							'span',
-							{ style: { float: "right" } },
-							React.createElement('input', { className: 'btn btn-default', title: '添加', type: 'button', value: '+', onclick: this.addNote })
-						)
-					)
-				),
-				React.createElement(
-					'tr',
-					null,
-					React.createElement(
-						'th',
-						null,
-						React.createElement(FilterBar, null)
+						'span',
+						{ style: { float: "right" } },
+						React.createElement('input', { className: 'btn btn-default', title: '添加', type: 'button', value: '+', onclick: this.addNote })
 					)
 				)
 			);
@@ -147,7 +134,8 @@ define(function (require, exports, module) {
 				React.createElement(
 					'thead',
 					null,
-					React.createElement(NoteHead, null)
+					React.createElement(NoteHead, null),
+					React.createElement(FilterBar, null)
 				),
 				React.createElement(
 					'tbody',
@@ -163,17 +151,52 @@ define(function (require, exports, module) {
 
 		render: function render() {
 			return React.createElement(
-				'div',
+				'tr',
 				null,
-				React.createElement('input', { className: 'btn_search', type: 'search', placeholder: '搜索...' })
+				React.createElement(
+					'th',
+					{ colSpan: '3' },
+					React.createElement(
+						'div',
+						{ className: 'input-group btn_search' },
+						React.createElement(
+							'span',
+							{ className: 'input-group-addon', id: 'basic-addon1' },
+							'Search'
+						),
+						React.createElement('input', { type: 'search', className: ' form-control', placeholder: '搜索...' })
+					)
+				)
 			);
 		}
 	});
 	var StatusBar = React.createClass({
 		displayName: 'StatusBar',
 
+		getInitialState: function getInitialState() {
+			return {
+				count: 0
+			};
+		},
+		loadCountFromWebsql: function loadCountFromWebsql() {
+			var me = this;
+			dbHelper.select('Notes', 'count(*) as count', false, function (message) {
+				if (message.success) {
+					me.setState({
+						count: message.result.rows[0].count
+					});
+				};
+			});
+		},
+		componentDidMount: function componentDidMount() {
+			this.loadCountFromWebsql();
+		},
 		render: function render() {
-			return React.createElement('div', null);
+			return React.createElement(
+				'div',
+				null,
+				this.state.count
+			);
 		}
 	});
 
