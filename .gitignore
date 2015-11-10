@@ -3,6 +3,8 @@
 /framework/jquery-1.11.3.min.js 
 /node_modules/* 
 /grunt/* 
+!/grunt/Gruntfile.js
+!/grunt/package.json
 bscmd.bat
 compiler.jar
 *.rar
