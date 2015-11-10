@@ -82,17 +82,31 @@ define(function (require, exports, module) {
 
 		render: function render() {
 			return React.createElement(
-				'tr',
-				null,
+				'div',
+				{ className: 'text-center topBar' },
 				React.createElement(
-					'th',
-					{ colSpan: '3', className: 'text-center' },
-					'备忘录',
+					'div',
+					null,
+					React.createElement(
+						'div',
+						{ className: 'title' },
+						'备忘录'
+					),
 					React.createElement(
 						'span',
 						{ style: { float: "right" } },
 						React.createElement('input', { className: 'btn btn-default btn-addNote', title: '添加', type: 'button', value: '+' })
 					)
+				),
+				React.createElement(
+					'div',
+					{ className: 'input-group btn_search' },
+					React.createElement(
+						'span',
+						{ className: 'input-group-addon' },
+						'Search'
+					),
+					React.createElement('input', { type: 'search', className: ' form-control', placeholder: '搜索...' })
 				)
 			);
 		}
@@ -107,47 +121,22 @@ define(function (require, exports, module) {
 				rows.push(React.createElement(NoteRows, { key: key, note: note }));
 			});
 			return React.createElement(
-				'table',
-				{ className: 'NoteList table table-hover table-striped' },
-				React.createElement(
-					'thead',
-					null,
-					React.createElement(NoteHead, { addNote: this.props.addNote }),
-					React.createElement(FilterBar, null)
-				),
-				React.createElement(
-					'tbody',
-					null,
-					rows
-				)
-			);
-		}
-	});
-
-	var FilterBar = React.createClass({
-		displayName: 'FilterBar',
-
-		render: function render() {
-			return React.createElement(
-				'tr',
+				'div',
 				null,
+				React.createElement(NoteHead, { addNote: this.props.addNote }),
 				React.createElement(
-					'th',
-					{ colSpan: '3' },
+					'table',
+					{ className: 'NoteList table table-hover table-striped' },
 					React.createElement(
-						'div',
-						{ className: 'input-group btn_search' },
-						React.createElement(
-							'span',
-							{ className: 'input-group-addon' },
-							'Search'
-						),
-						React.createElement('input', { type: 'search', className: ' form-control', placeholder: '搜索...' })
+						'tbody',
+						null,
+						rows
 					)
 				)
 			);
 		}
 	});
+
 	var StatusBar = React.createClass({
 		displayName: 'StatusBar',
 
@@ -337,6 +326,13 @@ define(function (require, exports, module) {
 				}
 			};
 		},
+		appKeyDown: function appKeyDown(e) {
+			var me = this;
+			e.stopPropagation();
+			var target = e.target;
+
+			console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
+		},
 		showError: function showError(errMsg) {
 			$(this.refs.errorContent).html(errMsg);
 			$(this.refs.error).show();
@@ -441,7 +437,7 @@ define(function (require, exports, module) {
 		render: function render() {
 			return React.createElement(
 				'div',
-				{ onClick: this.appClick },
+				{ onClick: this.appClick, onKeyDown: this.appKeyDown },
 				React.createElement(
 					'div',
 					{ className: 'alert alert-danger', ref: 'error', role: 'alert', style: { display: 'none' } },

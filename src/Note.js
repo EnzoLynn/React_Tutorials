@@ -68,15 +68,20 @@ define(function(require, exports, module) {
 	});
 	let NoteHead = React.createClass({
 		render: function() {
-			return (
-				<tr>
-				<th colSpan='3' className='text-center'>
-					备忘录
-					<span style={{float:"right"}}>
-						<input className='btn btn-default btn-addNote' title='添加'  type="button" value='+'/>
-					</span>
-				</th>
-				</tr>
+			return (				 
+				<div className='text-center topBar'>
+					<div>
+						<div  className='title'>备忘录</div>
+						<span style={{float:"right"}}>
+							<input className='btn btn-default btn-addNote' title='添加'  type="button" value='+'/>
+						</span>
+					</div>
+
+					<div className="input-group btn_search">  
+ 						<span className="input-group-addon" >Search</span>
+  						<input type="search" className=" form-control" placeholder="搜索..." /> 
+					</div> 
+				</div> 
 			);
 		}
 	});
@@ -90,36 +95,20 @@ define(function(require, exports, module) {
 				rows.push(<NoteRows key={key} note={note}/>);
 			});
 			return (
-
-				<table className='NoteList table table-hover table-striped'>
-						<thead>
-						<NoteHead addNote={this.props.addNote}/>
-						<FilterBar/>
-						</thead>
+				<div>
+				<NoteHead addNote={this.props.addNote}/> 
+				<table className='NoteList table table-hover table-striped'> 
 						<tbody>
 						{rows}
 						</tbody>
 				</table>
+				</div>
 			);
 
 		}
 	});
 
-	let FilterBar = React.createClass({
-		render: function() {
-			return (
-				<tr>
-					<th colSpan='3' >
-					<div className="input-group btn_search">  
- 						<span className="input-group-addon" >Search</span>
-  						<input type="search" className=" form-control" placeholder="搜索..." /> 
-					</div>
-					</th>
-				</tr>
-
-			);
-		}
-	});
+	 
 	let StatusBar = React.createClass({
 
 		render: function() {
@@ -257,6 +246,13 @@ define(function(require, exports, module) {
 
 			};
 		},
+		appKeyDown:function(e){
+			var me = this;
+			e.stopPropagation();
+			var target = e.target;
+
+			console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
+		},
 		showError: function(errMsg) {
 			$(this.refs.errorContent).html(errMsg);
 			$(this.refs.error).show();
@@ -362,7 +358,7 @@ define(function(require, exports, module) {
 		},
 		render: function() {
 			return (
-				<div onClick={this.appClick}>
+				<div onClick={this.appClick} onKeyDown={this.appKeyDown}>
 				<div className="alert alert-danger" ref='error' role="alert" style={{display:'none'}}>
 					<button type="button" className="close">
 						<span className="alert-danger">&times;</span>
