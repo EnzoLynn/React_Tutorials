@@ -2,6 +2,7 @@
 /framework/handlebars-v2.0.0.js
 /framework/jquery-1.11.3.min.js 
 /node_modules/* 
+/grunt/* 
 bscmd.bat
 compiler.jar
 *.rar
