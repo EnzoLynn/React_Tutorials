@@ -1,7 +1,11 @@
 'use strict';
 
 define(function (require, exports, module) {
-	var $ = require('jquery.min.js');
+	var $ = require('jquery.min');
+	require('bootstrap.sea')($);
+	//validator
+	var bsValidator = require('bootstrapValidator.sea')($);
+
 	var dbHelper = require('build/WebSqlHelper');
 	dbHelper.openDatabase();
 
@@ -53,7 +57,7 @@ define(function (require, exports, module) {
 		render: function render() {
 			return React.createElement(
 				'tr',
-				{ content: this.props.note.content },
+				null,
 				React.createElement(
 					'td',
 					{ className: 'NoteRow' },
@@ -66,9 +70,9 @@ define(function (require, exports, module) {
 				),
 				React.createElement(
 					'td',
-					{ className: 'NoteRow text-right', style: { width: '100px' } },
-					React.createElement('input', { className: 'btn btn-default', title: '查看', type: 'button', value: '>' }),
-					React.createElement('input', { className: 'btn btn-default', title: '删除', type: 'button', value: '-' })
+					{ className: 'NoteRow text-right', style: { width: '100px' }, ddd: 'ddd' },
+					React.createElement('input', { className: 'btn btn-default btn-view', 'data-id': this.props.note.id, 'data-content': this.props.note.content, title: '查看', type: 'button', value: '>' }),
+					React.createElement('input', { className: 'btn btn-default btn-delete', 'data-id': this.props.note.id, title: '删除', type: 'button', value: '-' })
 				)
 			);
 		}
@@ -76,7 +80,6 @@ define(function (require, exports, module) {
 	var NoteHead = React.createClass({
 		displayName: 'NoteHead',
 
-		addNote: function addNote() {},
 		render: function render() {
 			return React.createElement(
 				'tr',
@@ -88,7 +91,7 @@ define(function (require, exports, module) {
 					React.createElement(
 						'span',
 						{ style: { float: "right" } },
-						React.createElement('input', { className: 'btn btn-default', title: '添加', type: 'button', value: '+', onclick: this.addNote })
+						React.createElement('input', { className: 'btn btn-default btn-addNote', title: '添加', type: 'button', value: '+' })
 					)
 				)
 			);
@@ -98,34 +101,9 @@ define(function (require, exports, module) {
 	var NoteList = React.createClass({
 		displayName: 'NoteList',
 
-		getInitialState: function getInitialState() {
-			return {
-				notes: []
-			};
-		},
-		loadNoteFromWebsql: function loadNoteFromWebsql() {
-			var me = this;
-			dbHelper.select('Notes', '*', false, function (message) {
-				console.log(message);
-				if (message.success) {
-					var arr = [];
-
-					for (var i = 0; i < message.result.rows.length; i++) {
-						arr.push(message.result.rows[i]);
-					};
-					me.setState({
-						notes: arr
-					});
-				};
-			});
-		},
-		componentDidMount: function componentDidMount() {
-			this.loadNoteFromWebsql();
-		},
 		render: function render() {
 			var rows = [];
-			console.log(this.state.notes);
-			this.state.notes.forEach(function (note, key) {
+			this.props.notes.forEach(function (note, key) {
 				rows.push(React.createElement(NoteRows, { key: key, note: note }));
 			});
 			return React.createElement(
@@ -134,7 +112,7 @@ define(function (require, exports, module) {
 				React.createElement(
 					'thead',
 					null,
-					React.createElement(NoteHead, null),
+					React.createElement(NoteHead, { addNote: this.props.addNote }),
 					React.createElement(FilterBar, null)
 				),
 				React.createElement(
@@ -161,7 +139,7 @@ define(function (require, exports, module) {
 						{ className: 'input-group btn_search' },
 						React.createElement(
 							'span',
-							{ className: 'input-group-addon', id: 'basic-addon1' },
+							{ className: 'input-group-addon' },
 							'Search'
 						),
 						React.createElement('input', { type: 'search', className: ' form-control', placeholder: '搜索...' })
@@ -173,11 +151,228 @@ define(function (require, exports, module) {
 	var StatusBar = React.createClass({
 		displayName: 'StatusBar',
 
-		getInitialState: function getInitialState() {
-			return {
-				count: 0
+		render: function render() {
+			return React.createElement(
+				'div',
+				{ className: 'text-center' },
+				this.props.count
+			);
+		}
+	});
+
+	var Dialog = React.createClass({
+		displayName: 'Dialog',
+
+		componentDidMount: function componentDidMount() {
+			$(this.refs.form).bootstrapValidator({
+				message: '验证失败',
+				feedbackIcons: {
+					valid: 'glyphicon glyphicon-ok',
+					invalid: 'glyphicon glyphicon-remove',
+					validating: 'glyphicon glyphicon-refresh'
+				},
+				fields: {
+					title: {
+						message: 'The title is not valid',
+						validators: {
+							notEmpty: {
+								message: '不能为空'
+							},
+							stringLength: {
+								min: 6,
+								max: 30,
+								message: '长度6~30'
+							}
+						}
+					},
+					content: {
+						validators: {
+							notEmpty: {
+								message: '不能为空'
+							},
+							stringLength: {
+								min: 6,
+								max: 130,
+								message: '长度6~130'
+							}
+						}
+					}
+				}
+			});
+		},
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(
+					'div',
+					{ className: 'modal fade', ref: 'dialogDiv', tabIndex: '-1', role: 'dialog', 'aria-labelledby': 'myModalLabel' },
+					React.createElement(
+						'div',
+						{ className: 'modal-dialog', role: 'document' },
+						React.createElement(
+							'div',
+							{ className: 'modal-content' },
+							React.createElement(
+								'div',
+								{ className: 'modal-header' },
+								React.createElement(
+									'button',
+									{ type: 'button', className: 'close', 'data-dismiss': 'modal', 'aria-label': 'Close' },
+									React.createElement(
+										'span',
+										{ 'aria-hidden': 'true' },
+										'×'
+									)
+								),
+								React.createElement(
+									'h4',
+									{ className: 'modal-title' },
+									'添加备忘信息'
+								)
+							),
+							React.createElement(
+								'div',
+								{ className: 'modal-body' },
+								React.createElement(
+									'form',
+									{ ref: 'form', className: 'form-horizontal' },
+									React.createElement(
+										'div',
+										{ className: 'form-group' },
+										React.createElement(
+											'label',
+											{ className: 'col-sm-2 control-label' },
+											'标题'
+										),
+										React.createElement(
+											'div',
+											{ className: 'col-sm-10' },
+											React.createElement('input', { type: 'text', className: 'form-control', name: 'title', ref: 'title', placeholder: '标题' })
+										)
+									),
+									React.createElement(
+										'div',
+										{ className: 'form-group' },
+										React.createElement(
+											'label',
+											{ className: 'col-sm-2 control-label' },
+											'内容'
+										),
+										React.createElement(
+											'div',
+											{ className: 'col-sm-10' },
+											React.createElement('textarea', { className: 'form-control', name: 'content', ref: 'content', rows: '3', placeholder: '内容' })
+										)
+									)
+								)
+							),
+							React.createElement(
+								'div',
+								{ className: 'modal-footer' },
+								React.createElement(
+									'button',
+									{ type: 'button', className: 'btn btn-default', ref: 'close', 'data-dismiss': 'modal' },
+									'关闭'
+								),
+								React.createElement(
+									'button',
+									{ type: 'button', className: 'btn btn-primary btn-saveNote' },
+									'保存'
+								)
+							)
+						)
+					)
+				)
+			);
+		}
+	});
+
+	var NoteApp = React.createClass({
+		displayName: 'NoteApp',
+
+		appClick: function appClick(e) {
+			var me = this;
+			e.stopPropagation();
+			var target = e.target;
+			$(this.refs.error).hide();
+			console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
+			if (target.tagName.toLowerCase() == "input") {
+				if (target.type.toLowerCase() == "button") {
+					if ($(target).hasClass('btn-addNote')) {
+						me.showDialog();
+						return;
+					}
+					if ($(target).hasClass('btn-delete')) {
+						me.deleteNote($(target).attr('data-id'));
+						return;
+					}
+				};
+			}
+			if (target.tagName.toLowerCase() == "button") {
+				if (target.type.toLowerCase() == "button") {
+					if ($(target).hasClass('btn-saveNote')) {
+						me.addNote();
+						return;
+					}
+				}
 			};
 		},
+		showDialog: function showDialog() {
+			$(this.refs.dialog.refs.dialogDiv).modal('show');
+			$(this.refs.error).html('dd');
+			$(this.refs.error).show();
+		},
+		addNote: function addNote() {
+			var me = this;
+			var title = this.refs.dialog.refs.title.value;
+			var content = this.refs.dialog.refs.title.content;
+			var form = $(this.refs.dialog.refs.form).data('bootstrapValidator');
+			form.validate();
+			alert(form.isValid());
+			return;
+			dbHelper.insert('Notes', {
+				title: title,
+				content: content + ' <br> ' + new Date().getTime()
+			}, function (message) {
+				if (message.success) {
+					$(me.refs.dialog.refs.dialogDiv).modal('hide');
+					me.loadCountFromWebsql();
+					me.loadNoteFromWebsql();
+				} else {}
+			});
+		},
+		deleteNote: function deleteNote(noteid) {
+			var me = this;
+			console.log(noteid);
+			dbHelper['delete']('Notes', {
+				"id": noteid
+			}, function (message) {
+				if (message.success) {
+					me.loadCountFromWebsql();
+					me.loadNoteFromWebsql();
+				} else {
+					console.log(message);
+				}
+			});
+		},
+		loadNoteFromWebsql: function loadNoteFromWebsql() {
+			var me = this;
+			dbHelper.select('Notes', '*', false, function (message) {
+				console.log(message);
+				if (message.success) {
+					var arr = [];
+
+					for (var i = 0; i < message.result.rows.length; i++) {
+						arr.push(message.result.rows[i]);
+					};
+					me.setState({
+						notes: arr
+					});
+				};
+			});
+		},
+
 		loadCountFromWebsql: function loadCountFromWebsql() {
 			var me = this;
 			dbHelper.select('Notes', 'count(*) as count', false, function (message) {
@@ -188,27 +383,24 @@ define(function (require, exports, module) {
 				};
 			});
 		},
+		getInitialState: function getInitialState() {
+			return {
+				count: 0,
+				notes: []
+			};
+		},
 		componentDidMount: function componentDidMount() {
 			this.loadCountFromWebsql();
+			this.loadNoteFromWebsql();
 		},
 		render: function render() {
 			return React.createElement(
 				'div',
-				null,
-				this.state.count
-			);
-		}
-	});
-
-	var NoteApp = React.createClass({
-		displayName: 'NoteApp',
-
-		render: function render() {
-			return React.createElement(
-				'div',
-				null,
-				React.createElement(NoteList, null),
-				React.createElement(StatusBar, null)
+				{ onClick: this.appClick },
+				React.createElement('div', { className: 'alert alert-danger', ref: 'error', role: 'alert', style: { display: 'none' } }),
+				React.createElement(NoteList, { notes: this.state.notes }),
+				React.createElement(StatusBar, { count: this.state.count }),
+				React.createElement(Dialog, { ref: 'dialog' })
 			);
 		}
 	});
