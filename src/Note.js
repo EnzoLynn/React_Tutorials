@@ -7,13 +7,13 @@ define(function(require, exports, module) {
 	var dbHelper = require('build/WebSqlHelper');
 	dbHelper.openDatabase();
 
-	dbHelper.createTable('Notes', {
-		id: "integer primary key autoincrement",
-		title: "not null",
-		content: ""
-	}, function(message) {
-		console.log(message);
-	});
+	// dbHelper.createTable('Notes', {
+	// 	id: "integer primary key autoincrement",
+	// 	title: "not null",
+	// 	content: ""
+	// }, function(message) {
+	// 	console.log(message);
+	// });
 
 
 	// dbHelper.select('LOGS', '*', {
@@ -59,7 +59,7 @@ define(function(require, exports, module) {
 					<td className='NoteRow'>{this.props.note.id}</td>
 					<td className='NoteRow'>{this.props.note.title}</td> 
 					<td className='NoteRow text-right' style={{width:'100px'}} ddd='ddd'>
-						<input className='btn btn-default btn-view' data-id={this.props.note.id} data-content={this.props.note.content} title='查看' type="button" value='>'/>
+						<input className='btn btn-default btn-view' data-id={this.props.note.id} title='查看' type="button" value='>'/>
 						<input className='btn btn-default btn-delete'   data-id={this.props.note.id} title='删除' type="button" value='-'/>
 					</td> 
 				</tr>
@@ -177,7 +177,7 @@ define(function(require, exports, module) {
 				            <div className="modal-content">
 				                <div className="modal-header">
 				                    <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				                    <h4 className="modal-title">添加备忘信息</h4>
+				                    <h4 className="modal-title">备忘信息</h4>
 				                </div>
 				                <div className="modal-body">
 				                    <form ref='form'  className="form-horizontal">
@@ -225,6 +225,10 @@ define(function(require, exports, module) {
 						me.deleteNote($(target).attr('data-id'));
 						return;
 					}
+					if ($(target).hasClass('btn-view')) {
+						me.viewNote($(target).attr('data-id'));
+						return;
+					}
 				};
 			}
 			if (target.tagName.toLowerCase() == "button") {
@@ -262,6 +266,7 @@ define(function(require, exports, module) {
 			$(this.refs.error).hide();
 		},
 		showDialog: function() { 
+			$(this.refs.dialog.refs.form).data('bootstrapValidator').resetForm();
 			$(this.refs.dialog.refs.dialogDiv).modal('show');
 		},
 		addNote: function() {
@@ -271,7 +276,7 @@ define(function(require, exports, module) {
 			form.validate();
 			if (form.isValid()) {
 				var title = this.refs.dialog.refs.title.value;
-				var content = this.refs.dialog.refs.title.content;
+				var content = this.refs.dialog.refs.content.value;
 				dbHelper.insert('Notes', {
 					title: title,
 					content: `${content} <br> ${(new Date()).getTime()}`
@@ -286,9 +291,24 @@ define(function(require, exports, module) {
 				});
 			}
 		},
+		viewNote:function(noteid){
+			var me = this; 
+
+			$(this.refs.dialog.refs.form).data('bootstrapValidator').resetForm();
+			dbHelper.select('Notes', '*', {id:noteid}, function(message) {  
+				if (message.success) { 
+					me.refs.dialog.refs.title.value = message.result.rows[0].title;
+					me.refs.dialog.refs.content.value = message.result.rows[0].content;
+					$(me.refs.dialog.refs.dialogDiv).modal('show');
+					 
+				}else{
+					me.showError(message);
+				}
+			});
+			
+		},
 		deleteNote: function(noteid) {
-			var me = this;
-			console.log(noteid);
+			var me = this; 
 			dbHelper.delete('Notes', {
 				"id": noteid
 			}, function(message) {
@@ -302,8 +322,7 @@ define(function(require, exports, module) {
 		},
 		loadNoteFromWebsql: function() {
 			var me = this;
-			dbHelper.select('Notes', '*', false, function(message) {
-				console.log(message);
+			dbHelper.select('Notes', '*', false, function(message) { 
 				if (message.success) {
 					var arr = [];
 
@@ -313,7 +332,9 @@ define(function(require, exports, module) {
 					me.setState({
 						notes: arr
 					});
-				};
+				}else {
+					me.showError(message);
+				}
 			});
 		},
 
@@ -324,7 +345,9 @@ define(function(require, exports, module) {
 					me.setState({
 						count: message.result.rows[0].count
 					});
-				};
+				}else {
+					me.showError(message);
+				}
 			});
 		},
 		getInitialState: function() {
