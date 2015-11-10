@@ -63,6 +63,12 @@ define(function (require, exports, module) {
 					'td',
 					{ className: 'NoteRow' },
 					this.props.note.title
+				),
+				React.createElement(
+					'td',
+					{ className: 'NoteRow text-right', style: { width: '100px' } },
+					React.createElement('input', { className: 'btn btn-default', title: '查看', type: 'button', value: '>' }),
+					React.createElement('input', { className: 'btn btn-default', title: '删除', type: 'button', value: '-' })
 				)
 			);
 		}
@@ -73,16 +79,29 @@ define(function (require, exports, module) {
 		addNote: function addNote() {},
 		render: function render() {
 			return React.createElement(
-				'tr',
-				{ className: '' },
+				'div',
+				null,
 				React.createElement(
-					'th',
-					{ colSpan: '2', className: 'text-center' },
-					'备忘录',
+					'tr',
+					null,
 					React.createElement(
-						'span',
-						{ style: { float: "right" } },
-						React.createElement('input', { className: 'btn btn-default', type: 'button', value: '+', onclick: this.addNote })
+						'th',
+						{ colSpan: '3', className: 'text-center' },
+						'备忘录',
+						React.createElement(
+							'span',
+							{ style: { float: "right" } },
+							React.createElement('input', { className: 'btn btn-default', title: '添加', type: 'button', value: '+', onclick: this.addNote })
+						)
+					)
+				),
+				React.createElement(
+					'tr',
+					null,
+					React.createElement(
+						'th',
+						null,
+						React.createElement(FilterBar, null)
 					)
 				)
 			);
@@ -124,7 +143,7 @@ define(function (require, exports, module) {
 			});
 			return React.createElement(
 				'table',
-				{ className: 'NoteList table table-hover' },
+				{ className: 'NoteList table table-hover table-striped' },
 				React.createElement(
 					'thead',
 					null,
@@ -139,7 +158,39 @@ define(function (require, exports, module) {
 		}
 	});
 
+	var FilterBar = React.createClass({
+		displayName: 'FilterBar',
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement('input', { className: 'btn_search', type: 'search', placeholder: '搜索...' })
+			);
+		}
+	});
+	var StatusBar = React.createClass({
+		displayName: 'StatusBar',
+
+		render: function render() {
+			return React.createElement('div', null);
+		}
+	});
+
+	var NoteApp = React.createClass({
+		displayName: 'NoteApp',
+
+		render: function render() {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement(NoteList, null),
+				React.createElement(StatusBar, null)
+			);
+		}
+	});
+
 	$(function () {
-		ReactDOM.render(React.createElement(NoteList, null), $('.content').get(0));
+		ReactDOM.render(React.createElement(NoteApp, null), $('.content').get(0));
 	});
 });
