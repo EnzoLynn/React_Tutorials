@@ -124,8 +124,8 @@ define(function(require, exports, module) {
 
 		render: function() {
 			return (
-				<div className='text-center'>
-					{this.props.count}
+				<div className='text-center statusBar'>
+					{this.props.count} 个备忘录
 				</div>
 			);
 		}
@@ -370,7 +370,7 @@ define(function(require, exports, module) {
 					<div className="alert-danger" ref='errorContent'></div>
 				</div>
 				<NoteList notes={this.state.notes}></NoteList>
-				<StatusBar count={this.state.count}></StatusBar>
+				<StatusBar count={this.state.count} ></StatusBar>
 				<Dialog ref='dialog'/>
 				</div>
 			);

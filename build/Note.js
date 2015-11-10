@@ -154,8 +154,9 @@ define(function (require, exports, module) {
 		render: function render() {
 			return React.createElement(
 				'div',
-				{ className: 'text-center' },
-				this.props.count
+				{ className: 'text-center statusBar' },
+				this.props.count,
+				' 个备忘录'
 			);
 		}
 	});
