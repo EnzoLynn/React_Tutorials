@@ -151,19 +151,19 @@ define(function(require, exports, module) {
 								min: 6,
 								max: 30,
 								message: '长度6~30'
-							} 
+							}
 						}
 					},
 					content: {
 						validators: {
 							notEmpty: {
 								message: '不能为空'
-							} ,
+							},
 							stringLength: {
 								min: 6,
 								max: 130,
 								message: '长度6~130'
-							} 
+							}
 						}
 					}
 				}
@@ -213,7 +213,7 @@ define(function(require, exports, module) {
 			var me = this;
 			e.stopPropagation();
 			var target = e.target;
-			$(this.refs.error).hide();
+
 			console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
 			if (target.tagName.toLowerCase() == "input") {
 				if (target.type.toLowerCase() == "button") {
@@ -236,32 +236,55 @@ define(function(require, exports, module) {
 				}
 
 			};
+			if (target.tagName.toLowerCase() == "div") {
+
+				if ($(target).hasClass('alert-danger')) {
+					me.hideError();
+					return;
+				}
+
+			};
+			if (target.tagName.toLowerCase() == "span") {
+
+				if ($(target).hasClass('alert-danger')) {
+					me.hideError();
+					return;
+				}
+
+			};
 		},
-		showDialog: function() {
-			$(this.refs.dialog.refs.dialogDiv).modal('show');
-			$(this.refs.error).html('dd');
+		showError: function(errMsg) {
+			$(this.refs.errorContent).html(errMsg);
 			$(this.refs.error).show();
+		},
+		hideError:function(){
+			$(this.refs.errorContent).html('');
+			$(this.refs.error).hide();
+		},
+		showDialog: function() { 
+			$(this.refs.dialog.refs.dialogDiv).modal('show');
 		},
 		addNote: function() {
 			var me = this;
-			var title = this.refs.dialog.refs.title.value;
-			var content = this.refs.dialog.refs.title.content;
-			var form = $(this.refs.dialog.refs.form).data('bootstrapValidator');
-        	form.validate();
-        	alert(form.isValid());
-        	return;
-			dbHelper.insert('Notes', {
-				title: title,
-				content: `${content} <br> ${(new Date()).getTime()}`
-			}, function(message) {
-				if (message.success) {
-					$(me.refs.dialog.refs.dialogDiv).modal('hide');
-					me.loadCountFromWebsql();
-					me.loadNoteFromWebsql();
-				} else {
 
-				}
-			});
+			var form = $(this.refs.dialog.refs.form).data('bootstrapValidator');
+			form.validate();
+			if (form.isValid()) {
+				var title = this.refs.dialog.refs.title.value;
+				var content = this.refs.dialog.refs.title.content;
+				dbHelper.insert('Notes', {
+					title: title,
+					content: `${content} <br> ${(new Date()).getTime()}`
+				}, function(message) {
+					if (message.success) {
+						$(me.refs.dialog.refs.dialogDiv).modal('hide');
+						me.loadCountFromWebsql();
+						me.loadNoteFromWebsql();
+					} else {
+						me.showError(message);
+					}
+				});
+			}
 		},
 		deleteNote: function(noteid) {
 			var me = this;
@@ -273,7 +296,7 @@ define(function(require, exports, module) {
 					me.loadCountFromWebsql();
 					me.loadNoteFromWebsql();
 				} else {
-					console.log(message);
+					me.showError(message);
 				}
 			});
 		},
@@ -317,7 +340,12 @@ define(function(require, exports, module) {
 		render: function() {
 			return (
 				<div onClick={this.appClick}>
-				<div className="alert alert-danger" ref='error' role="alert" style={{display:'none'}}></div>
+				<div className="alert alert-danger" ref='error' role="alert" style={{display:'none'}}>
+					<button type="button" className="close">
+						<span className="alert-danger">&times;</span>
+					</button>
+					<div className="alert-danger" ref='errorContent'></div>
+				</div>
 				<NoteList notes={this.state.notes}></NoteList>
 				<StatusBar count={this.state.count}></StatusBar>
 				<Dialog ref='dialog'/>

@@ -295,7 +295,7 @@ define(function (require, exports, module) {
 			var me = this;
 			e.stopPropagation();
 			var target = e.target;
-			$(this.refs.error).hide();
+
 			console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
 			if (target.tagName.toLowerCase() == "input") {
 				if (target.type.toLowerCase() == "button") {
@@ -317,30 +317,53 @@ define(function (require, exports, module) {
 					}
 				}
 			};
+			if (target.tagName.toLowerCase() == "div") {
+
+				if ($(target).hasClass('alert-danger')) {
+					me.hideError();
+					return;
+				}
+			};
+			if (target.tagName.toLowerCase() == "span") {
+
+				if ($(target).hasClass('alert-danger')) {
+					me.hideError();
+					return;
+				}
+			};
+		},
+		showError: function showError(errMsg) {
+			$(this.refs.errorContent).html(errMsg);
+			$(this.refs.error).show();
+		},
+		hideError: function hideError() {
+			$(this.refs.errorContent).html('');
+			$(this.refs.error).hide();
 		},
 		showDialog: function showDialog() {
 			$(this.refs.dialog.refs.dialogDiv).modal('show');
-			$(this.refs.error).html('dd');
-			$(this.refs.error).show();
 		},
 		addNote: function addNote() {
 			var me = this;
-			var title = this.refs.dialog.refs.title.value;
-			var content = this.refs.dialog.refs.title.content;
+
 			var form = $(this.refs.dialog.refs.form).data('bootstrapValidator');
 			form.validate();
-			alert(form.isValid());
-			return;
-			dbHelper.insert('Notes', {
-				title: title,
-				content: content + ' <br> ' + new Date().getTime()
-			}, function (message) {
-				if (message.success) {
-					$(me.refs.dialog.refs.dialogDiv).modal('hide');
-					me.loadCountFromWebsql();
-					me.loadNoteFromWebsql();
-				} else {}
-			});
+			if (form.isValid()) {
+				var title = this.refs.dialog.refs.title.value;
+				var content = this.refs.dialog.refs.title.content;
+				dbHelper.insert('Notes', {
+					title: title,
+					content: content + ' <br> ' + new Date().getTime()
+				}, function (message) {
+					if (message.success) {
+						$(me.refs.dialog.refs.dialogDiv).modal('hide');
+						me.loadCountFromWebsql();
+						me.loadNoteFromWebsql();
+					} else {
+						me.showError(message);
+					}
+				});
+			}
 		},
 		deleteNote: function deleteNote(noteid) {
 			var me = this;
@@ -352,7 +375,7 @@ define(function (require, exports, module) {
 					me.loadCountFromWebsql();
 					me.loadNoteFromWebsql();
 				} else {
-					console.log(message);
+					me.showError(message);
 				}
 			});
 		},
@@ -397,7 +420,20 @@ define(function (require, exports, module) {
 			return React.createElement(
 				'div',
 				{ onClick: this.appClick },
-				React.createElement('div', { className: 'alert alert-danger', ref: 'error', role: 'alert', style: { display: 'none' } }),
+				React.createElement(
+					'div',
+					{ className: 'alert alert-danger', ref: 'error', role: 'alert', style: { display: 'none' } },
+					React.createElement(
+						'button',
+						{ type: 'button', className: 'close' },
+						React.createElement(
+							'span',
+							{ className: 'alert-danger' },
+							'×'
+						)
+					),
+					React.createElement('div', { className: 'alert-danger', ref: 'errorContent' })
+				),
 				React.createElement(NoteList, { notes: this.state.notes }),
 				React.createElement(StatusBar, { count: this.state.count }),
 				React.createElement(Dialog, { ref: 'dialog' })
