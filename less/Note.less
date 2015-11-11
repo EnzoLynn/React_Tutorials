@@ -1,34 +1,47 @@
-.btn_search{
-	width:100%;
+.statusBar {
+    width: 100%;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    border-top: 1px solid #999;
+    background-color: white;
 }
 
-.statusBar{
-	width:100%;
-	position:fixed;
-    right:0;
-    bottom:0;
-    z-index:5;
-    border-top:1px solid #999;
-    background-color: white;
-}
-.NoteList .NoteRow{ 
-	vertical-align: middle;
-}
-.topBar{ 
-	width: 100%;
-	position:fixed;
-    right:0;
-    top:0;
-    z-index:5;     
+.topBar {
+    width: 100%;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 5;
     background-color: white;
     height: 68px;
-    
+    .title {
+        float: left;
+        margin-top: 4px;
+        margin-left: 50%;
+    }
+    .btn_search {
+        width: 100%;
+    }
+    .btn-clear { 
+        position: relative;
+        float: right;
+        width: 30px; 
+        height: 10px;
+        top:-30px;
+        vertical-align: middle;
+        z-index: 6;
+        .clearBtn{
+            border:0;
+            background-color:white;
+        }
+    }
 }
-.topBar .title{
-    float: left;
-    margin-top: 4px;
-    margin-left: 50%;
+
+.NoteList {
+    margin-top: 68px;
+    .NoteRow {
+        vertical-align: middle;
+    }
 }
-.NoteList{
-	margin-top: 68px;
-} 

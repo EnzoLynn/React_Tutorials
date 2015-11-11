@@ -106,7 +106,20 @@ define(function (require, exports, module) {
 						{ className: 'input-group-addon' },
 						'Search'
 					),
-					React.createElement('input', { type: 'search', className: ' form-control', placeholder: '搜索...' })
+					React.createElement('input', { type: 'search', className: ' form-control txt-search', placeholder: '搜索...' })
+				),
+				React.createElement(
+					'div',
+					{ className: 'btn-clear hide' },
+					React.createElement(
+						'button',
+						{ type: 'button', className: 'clearBtn' },
+						React.createElement(
+							'span',
+							{ className: 'clearBtn', 'aria-hidden': 'true' },
+							'×'
+						)
+					)
 				)
 			);
 		}
@@ -309,6 +322,10 @@ define(function (require, exports, module) {
 						me.addNote();
 						return;
 					}
+					if ($(target).hasClass('clearBtn')) {
+						me.clearFilter();
+						return;
+					}
 				}
 			};
 			if (target.tagName.toLowerCase() == "div") {
@@ -324,14 +341,46 @@ define(function (require, exports, module) {
 					me.hideError();
 					return;
 				}
+				if ($(target).hasClass('clearBtn')) {
+					me.clearFilter();
+					return;
+				}
 			};
 		},
-		appKeyDown: function appKeyDown(e) {
+		clearFilter: function clearFilter() {
+			$('.txt-search').val('');
+			$('.btn-clear').addClass('hide');
+			this.loadCountFromWebsql();
+			this.loadNoteFromWebsql();
+		},
+		appKeyUp: function appKeyUp(e) {
 			var me = this;
 			e.stopPropagation();
 			var target = e.target;
 
 			console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
+			if (target.tagName.toLowerCase() == "input") {
+				if (target.type.toLowerCase() == "search") {
+					if ($(target).hasClass('txt-search')) {
+						var serKey = $(target).val();
+						if (serKey != "") {
+							$('.btn-clear').removeClass('hide');
+							this.loadCountFromWebsql({
+								title: '%' + serKey + '%'
+							});
+							this.loadNoteFromWebsql({
+								title: '%' + serKey + '%'
+							});
+						} else {
+							$('.btn-clear').addClass('hide');
+							this.loadCountFromWebsql();
+							this.loadNoteFromWebsql();
+						}
+
+						return;
+					};
+				};
+			};
 		},
 		showError: function showError(errMsg) {
 			$(this.refs.errorContent).html(errMsg);
@@ -371,7 +420,9 @@ define(function (require, exports, module) {
 			var me = this;
 
 			$(this.refs.dialog.refs.form).data('bootstrapValidator').resetForm();
-			dbHelper.select('Notes', '*', { id: noteid }, function (message) {
+			dbHelper.select('Notes', '*', {
+				id: noteid
+			}, function (message) {
 				if (message.success) {
 					me.refs.dialog.refs.title.value = message.result.rows[0].title;
 					me.refs.dialog.refs.content.value = message.result.rows[0].content;
@@ -394,9 +445,11 @@ define(function (require, exports, module) {
 				}
 			});
 		},
-		loadNoteFromWebsql: function loadNoteFromWebsql() {
+		loadNoteFromWebsql: function loadNoteFromWebsql(opts) {
 			var me = this;
-			dbHelper.select('Notes', '*', false, function (message) {
+			var def = {};
+			def = $.extend(def, opts);
+			dbHelper.select('Notes', '*', def, function (message) {
 				if (message.success) {
 					var arr = [];
 
@@ -412,9 +465,11 @@ define(function (require, exports, module) {
 			});
 		},
 
-		loadCountFromWebsql: function loadCountFromWebsql() {
+		loadCountFromWebsql: function loadCountFromWebsql(opts) {
 			var me = this;
-			dbHelper.select('Notes', 'count(*) as count', false, function (message) {
+			var def = {};
+			def = $.extend(def, opts);
+			dbHelper.select('Notes', 'count(*) as count', def, function (message) {
 				if (message.success) {
 					me.setState({
 						count: message.result.rows[0].count
@@ -437,7 +492,7 @@ define(function (require, exports, module) {
 		render: function render() {
 			return React.createElement(
 				'div',
-				{ onClick: this.appClick, onKeyDown: this.appKeyDown },
+				{ onClick: this.appClick, onKeyUp: this.appKeyUp },
 				React.createElement(
 					'div',
 					{ className: 'alert alert-danger', ref: 'error', role: 'alert', style: { display: 'none' } },

@@ -213,14 +213,26 @@ define(function (require, exports, module) {
 			var where = ' where ';
 			var params = [];
 			var sql = prefix;
+
 			if (typeof whereObj == 'object') {
 				for (var key in whereObj) {
+					var val = whereObj[key];
 
-					where += key + "=? and ";
-					params.push(whereObj[key]);
+					var ctl = '=';
+					if (val.indexOf('%') == 0) {
+						ctl = ' like ';
+					};
+					if (val.lastIndexOf('%') == val.length - 1) {
+						ctl = ' like ';
+					};
+
+					where += "" + key + ctl + "? and ";
+					params.push(val);
 				}
-				where = where.substring(0, where.length - 4);
-				sql += where;
+				if (params.length > 0) {
+					where = where.substring(0, where.length - 4);
+					sql += where;
+				};
 			};
 			me.executeSql(sql, params, function (tx, result) {
 				if (typeof callback == 'function') {
@@ -268,13 +280,15 @@ define(function (require, exports, module) {
 			}
 			sql = sql.substr(0, sql.length - 1);
 
-			if (typeof whereObj != "undefined") {
+			if (typeof whereObj != "undefined" && typeof whereObj == 'object') {
 				for (var key in whereObj) {
 					where += key + "=? and ";
 					params.push(whereObj[key]);
 				}
-				where = where.substring(0, where.length - 4);
-				sql += where;
+				if (params.length > 0) {
+					where = where.substring(0, where.length - 4);
+					sql += where;
+				};
 			}
 
 			me.executeSql(sql, params, function (tx, result) {
@@ -317,8 +331,10 @@ define(function (require, exports, module) {
 					where += key + "=? and ";
 					params.push(whereObj[key]);
 				}
-				where = where.substring(0, where.length - 4);
-				sql += where;
+				if (params.length > 0) {
+					where = where.substring(0, where.length - 4);
+					sql += where;
+				};
 			};
 
 			me.executeSql(sql, params, function (tx, result) {

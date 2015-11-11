@@ -1,6 +1,3 @@
-.btn_search {
-  width: 100%;
-}
 .statusBar {
   width: 100%;
   position: fixed;
@@ -9,9 +6,6 @@
   z-index: 5;
   border-top: 1px solid #999;
   background-color: white;
-}
-.NoteList .NoteRow {
-  vertical-align: middle;
 }
 .topBar {
   width: 100%;
@@ -27,6 +21,25 @@
   margin-top: 4px;
   margin-left: 50%;
 }
+.topBar .btn_search {
+  width: 100%;
+}
+.topBar .btn-clear {
+  position: relative;
+  float: right;
+  width: 30px;
+  height: 10px;
+  top: -30px;
+  vertical-align: middle;
+  z-index: 6;
+}
+.topBar .btn-clear .clearBtn {
+  border: 0;
+  background-color: white;
+}
 .NoteList {
   margin-top: 68px;
+}
+.NoteList .NoteRow {
+  vertical-align: middle;
 }

@@ -68,7 +68,7 @@ define(function(require, exports, module) {
 	});
 	let NoteHead = React.createClass({
 		render: function() {
-			return (				 
+			return (
 				<div className='text-center topBar'>
 					<div>
 						<div  className='title'>备忘录</div>
@@ -79,9 +79,15 @@ define(function(require, exports, module) {
 
 					<div className="input-group btn_search">  
  						<span className="input-group-addon" >Search</span>
-  						<input type="search" className=" form-control" placeholder="搜索..." /> 
+  						<input type="search" className=" form-control txt-search" placeholder="搜索..." /> 
+  						
 					</div> 
-				</div> 
+					<div className="btn-clear hide">
+						<button type="button" className='clearBtn'>
+							<span className='clearBtn' aria-hidden="true">&times;</span>
+						</button>
+  					</div> 
+				</div>
 			);
 		}
 	});
@@ -108,7 +114,7 @@ define(function(require, exports, module) {
 		}
 	});
 
-	 
+
 	let StatusBar = React.createClass({
 
 		render: function() {
@@ -226,6 +232,10 @@ define(function(require, exports, module) {
 						me.addNote();
 						return;
 					}
+					if ($(target).hasClass('clearBtn')) {
+						me.clearFilter();
+						return;
+					}
 				}
 
 			};
@@ -243,25 +253,58 @@ define(function(require, exports, module) {
 					me.hideError();
 					return;
 				}
+				if ($(target).hasClass('clearBtn')) {
+					me.clearFilter();
+					return;
+				}
 
 			};
 		},
-		appKeyDown:function(e){
+		clearFilter: function() {
+			$('.txt-search').val('');
+			$('.btn-clear').addClass('hide');
+			this.loadCountFromWebsql();
+			this.loadNoteFromWebsql();
+		},
+		appKeyUp: function(e) {
 			var me = this;
 			e.stopPropagation();
 			var target = e.target;
 
+
 			console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
+			if (target.tagName.toLowerCase() == "input") {
+				if (target.type.toLowerCase() == "search") {
+					if ($(target).hasClass('txt-search')) {
+						var serKey = $(target).val();
+						if (serKey != "") {
+							$('.btn-clear').removeClass('hide');
+							this.loadCountFromWebsql({
+								title: `%${serKey}%`
+							});
+							this.loadNoteFromWebsql({
+								title: `%${serKey}%`
+							});
+						} else {
+							$('.btn-clear').addClass('hide');
+							this.loadCountFromWebsql();
+							this.loadNoteFromWebsql();
+						}
+
+						return;
+					};
+				};
+			};
 		},
 		showError: function(errMsg) {
 			$(this.refs.errorContent).html(errMsg);
 			$(this.refs.error).show();
 		},
-		hideError:function(){
+		hideError: function() {
 			$(this.refs.errorContent).html('');
 			$(this.refs.error).hide();
 		},
-		showDialog: function() { 
+		showDialog: function() {
 			$(this.refs.dialog.refs.form).data('bootstrapValidator').resetForm();
 			$(this.refs.dialog.refs.dialogDiv).modal('show');
 		},
@@ -287,24 +330,26 @@ define(function(require, exports, module) {
 				});
 			}
 		},
-		viewNote:function(noteid){
-			var me = this; 
+		viewNote: function(noteid) {
+			var me = this;
 
 			$(this.refs.dialog.refs.form).data('bootstrapValidator').resetForm();
-			dbHelper.select('Notes', '*', {id:noteid}, function(message) {  
-				if (message.success) { 
+			dbHelper.select('Notes', '*', {
+				id: noteid
+			}, function(message) {
+				if (message.success) {
 					me.refs.dialog.refs.title.value = message.result.rows[0].title;
 					me.refs.dialog.refs.content.value = message.result.rows[0].content;
 					$(me.refs.dialog.refs.dialogDiv).modal('show');
-					 
-				}else{
+
+				} else {
 					me.showError(message);
 				}
 			});
-			
+
 		},
 		deleteNote: function(noteid) {
-			var me = this; 
+			var me = this;
 			dbHelper.delete('Notes', {
 				"id": noteid
 			}, function(message) {
@@ -316,9 +361,11 @@ define(function(require, exports, module) {
 				}
 			});
 		},
-		loadNoteFromWebsql: function() {
+		loadNoteFromWebsql: function(opts) {
 			var me = this;
-			dbHelper.select('Notes', '*', false, function(message) { 
+			let def = {};
+			def = $.extend(def, opts);
+			dbHelper.select('Notes', '*', def, function(message) {
 				if (message.success) {
 					var arr = [];
 
@@ -328,20 +375,22 @@ define(function(require, exports, module) {
 					me.setState({
 						notes: arr
 					});
-				}else {
+				} else {
 					me.showError(message);
 				}
 			});
 		},
 
-		loadCountFromWebsql: function() {
+		loadCountFromWebsql: function(opts) {
 			var me = this;
-			dbHelper.select('Notes', 'count(*) as count', false, function(message) {
+			let def = {};
+			def = $.extend(def, opts);
+			dbHelper.select('Notes', 'count(*) as count', def, function(message) {
 				if (message.success) {
 					me.setState({
 						count: message.result.rows[0].count
 					});
-				}else {
+				} else {
 					me.showError(message);
 				}
 			});
@@ -358,7 +407,7 @@ define(function(require, exports, module) {
 		},
 		render: function() {
 			return (
-				<div onClick={this.appClick} onKeyDown={this.appKeyDown}>
+				<div onClick={this.appClick} onKeyUp={this.appKeyUp}>
 				<div className="alert alert-danger" ref='error' role="alert" style={{display:'none'}}>
 					<button type="button" className="close">
 						<span className="alert-danger">&times;</span>
