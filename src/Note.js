@@ -71,7 +71,7 @@ define(function(require, exports, module) {
 			return (
 				<div className='text-center topBar'>
 					<div>
-						<div  className='title'>备忘录</div>
+						<div  className='title' ref='title'>备忘录</div>
 						<span style={{float:"right"}}>
 							<input className='btn btn-default btn-addNote' title='添加'  type="button" value='+'/>
 						</span>
@@ -266,6 +266,15 @@ define(function(require, exports, module) {
 			this.loadCountFromWebsql();
 			this.loadNoteFromWebsql();
 		},
+		runFilter: function(serKey) {
+			$('.btn-clear').removeClass('hide');
+			this.loadCountFromWebsql({
+				title: `%${serKey}%`
+			});
+			this.loadNoteFromWebsql({
+				title: `%${serKey}%`
+			});
+		},
 		appKeyUp: function(e) {
 			var me = this;
 			e.stopPropagation();
@@ -278,17 +287,9 @@ define(function(require, exports, module) {
 					if ($(target).hasClass('txt-search')) {
 						var serKey = $(target).val();
 						if (serKey != "") {
-							$('.btn-clear').removeClass('hide');
-							this.loadCountFromWebsql({
-								title: `%${serKey}%`
-							});
-							this.loadNoteFromWebsql({
-								title: `%${serKey}%`
-							});
+							me.runFilter(serKey);
 						} else {
-							$('.btn-clear').addClass('hide');
-							this.loadCountFromWebsql();
-							this.loadNoteFromWebsql();
+							me.clearFilter();
 						}
 
 						return;
@@ -305,6 +306,7 @@ define(function(require, exports, module) {
 			$(this.refs.error).hide();
 		},
 		showDialog: function() {
+			console.log(this.props.children);
 			$(this.refs.dialog.refs.form).data('bootstrapValidator').resetForm();
 			$(this.refs.dialog.refs.dialogDiv).modal('show');
 		},
@@ -398,7 +400,7 @@ define(function(require, exports, module) {
 		getInitialState: function() {
 			return {
 				count: 0,
-				notes: []
+				notes: [] 
 			};
 		},
 		componentDidMount: function() {
@@ -424,7 +426,7 @@ define(function(require, exports, module) {
 
 	$(function() {
 		ReactDOM.render(
-			<NoteApp />,
+			<NoteApp ></NoteApp>,
 			$('.content').get(0)
 		);
 

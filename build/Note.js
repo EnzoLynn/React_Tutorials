@@ -89,7 +89,7 @@ define(function (require, exports, module) {
 					null,
 					React.createElement(
 						'div',
-						{ className: 'title' },
+						{ className: 'title', ref: 'title' },
 						'备忘录'
 					),
 					React.createElement(
@@ -353,6 +353,15 @@ define(function (require, exports, module) {
 			this.loadCountFromWebsql();
 			this.loadNoteFromWebsql();
 		},
+		runFilter: function runFilter(serKey) {
+			$('.btn-clear').removeClass('hide');
+			this.loadCountFromWebsql({
+				title: '%' + serKey + '%'
+			});
+			this.loadNoteFromWebsql({
+				title: '%' + serKey + '%'
+			});
+		},
 		appKeyUp: function appKeyUp(e) {
 			var me = this;
 			e.stopPropagation();
@@ -364,17 +373,9 @@ define(function (require, exports, module) {
 					if ($(target).hasClass('txt-search')) {
 						var serKey = $(target).val();
 						if (serKey != "") {
-							$('.btn-clear').removeClass('hide');
-							this.loadCountFromWebsql({
-								title: '%' + serKey + '%'
-							});
-							this.loadNoteFromWebsql({
-								title: '%' + serKey + '%'
-							});
+							me.runFilter(serKey);
 						} else {
-							$('.btn-clear').addClass('hide');
-							this.loadCountFromWebsql();
-							this.loadNoteFromWebsql();
+							me.clearFilter();
 						}
 
 						return;
@@ -391,6 +392,7 @@ define(function (require, exports, module) {
 			$(this.refs.error).hide();
 		},
 		showDialog: function showDialog() {
+			console.log(this.props.children);
 			$(this.refs.dialog.refs.form).data('bootstrapValidator').resetForm();
 			$(this.refs.dialog.refs.dialogDiv).modal('show');
 		},
