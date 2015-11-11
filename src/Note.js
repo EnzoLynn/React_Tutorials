@@ -11,41 +11,35 @@ define(function(require, exports, module) {
 	// 	id: "integer primary key autoincrement",
 	// 	title: "not null",
 	// 	content: ""
-	// }, function(message) {
-	// 	console.log(message);
+	// }, function(message) { 
 	// });
 
 
 	// dbHelper.select('LOGS', '*', {
 	// 	"id": 2
-	// }, function(message) {
-	// 	console.log(message);
+	// }, function(message) { 
 	// 	if (message.success) {
-	// 		for (var i = 0; i < message.result.rows.length; i++) {
-	// 			console.log(message.result.rows[i]);
+	// 		for (var i = 0; i < message.result.rows.length; i++) { 
 	// 		};
 	// 	};
 	// });
 
-	// dbHelper.dropTable('test', function(message) {
-	// 	console.log(message);		 
+	// dbHelper.dropTable('test', function(message) { 
 	// });
 	// dbHelper.update('LOGS',{log:'update'},{
 	// 	id:2
-	// }, function(message) {
-	// 	console.log(message);		 
+	// }, function(message) { 
 	// });
 	// dbHelper.delete('LOGS',{"id": 1});
 	// dbHelper.createTable('test',{id:"integer primary key autoincrement",name:"not null"},function(message){
-	// 	 console.log(message);
+	 
 	// });
 
 	// dbHelper.insert('Notes',{	
 
 	// 	title:(new Date()).getTime(),
 	// 	content:'tes1t'
-	// },function(message){
-	// 	console.log(message);
+	// },function(message){ 
 	// });
 	// 
 	// 
@@ -67,7 +61,9 @@ define(function(require, exports, module) {
 		}
 	});
 	let NoteHead = React.createClass({
+
 		render: function() {
+		 	var str = "btn-clear " +  this.props.clearStatus;  
 			return (
 				<div className='text-center topBar'>
 					<div>
@@ -79,10 +75,10 @@ define(function(require, exports, module) {
 
 					<div className="input-group btn_search">  
  						<span className="input-group-addon" >Search</span>
-  						<input type="search" className=" form-control txt-search" placeholder="搜索..." /> 
+  						<input type="search" className=" form-control txt-search"  placeholder="搜索..." /> 
   						
 					</div> 
-					<div className="btn-clear hide">
+					<div className={str}  >
 						<button type="button" className='clearBtn'>
 							<span className='clearBtn' aria-hidden="true">&times;</span>
 						</button>
@@ -94,15 +90,14 @@ define(function(require, exports, module) {
 
 
 	let NoteList = React.createClass({
-
-		render: function() {
+		render: function() {  
 			var rows = [];
 			this.props.notes.forEach(function(note, key) {
 				rows.push(<NoteRows key={key} note={note}/>);
 			});
 			return (
 				<div>
-				<NoteHead addNote={this.props.addNote}/> 
+				<NoteHead addNote={this.props.addNote} clearStatus={this.props.clearStatus}/> 
 				<table className='NoteList table table-hover table-striped'> 
 						<tbody>
 						{rows}
@@ -117,7 +112,7 @@ define(function(require, exports, module) {
 
 	let StatusBar = React.createClass({
 
-		render: function() {
+		render: function() { 
 			return (
 				<div className='text-center statusBar'>
 					{this.props.count} 个备忘录
@@ -164,7 +159,7 @@ define(function(require, exports, module) {
 				}
 			});
 		},
-		render: function() {
+		render: function() { 
 			return (
 				<div>
 					 <div className="modal fade" ref='dialogDiv' tabIndex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -262,19 +257,24 @@ define(function(require, exports, module) {
 		},
 		clearFilter: function() {
 			$('.txt-search').val('');
-			$('.btn-clear').addClass('hide');
+			this.setState({
+				clearStatus: 'hide'
+			});
 			this.loadCountFromWebsql();
 			this.loadNoteFromWebsql();
 		},
 		runFilter: function(serKey) {
-			$('.btn-clear').removeClass('hide');
+			
+			this.setState({
+				clearStatus: 'show'
+			});
 			this.loadCountFromWebsql({
 				title: `%${serKey}%`
 			});
 			this.loadNoteFromWebsql({
 				title: `%${serKey}%`
 			});
-		},
+		} ,
 		appKeyUp: function(e) {
 			var me = this;
 			e.stopPropagation();
@@ -283,9 +283,9 @@ define(function(require, exports, module) {
 
 			console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
 			if (target.tagName.toLowerCase() == "input") {
-				if (target.type.toLowerCase() == "search") {
-					if ($(target).hasClass('txt-search')) {
-						var serKey = $(target).val();
+				if (target.type.toLowerCase() == "search") { 
+					if ($(target).hasClass('txt-search')) { 
+						var serKey = $(target).val(); 
 						if (serKey != "") {
 							me.runFilter(serKey);
 						} else {
@@ -305,8 +305,7 @@ define(function(require, exports, module) {
 			$(this.refs.errorContent).html('');
 			$(this.refs.error).hide();
 		},
-		showDialog: function() {
-			console.log(this.props.children);
+		showDialog: function() { 
 			$(this.refs.dialog.refs.form).data('bootstrapValidator').resetForm();
 			$(this.refs.dialog.refs.dialogDiv).modal('show');
 		},
@@ -400,23 +399,25 @@ define(function(require, exports, module) {
 		getInitialState: function() {
 			return {
 				count: 0,
-				notes: [] 
+				notes: [],
+				clearStatus: 'hide' 
 			};
 		},
 		componentDidMount: function() {
 			this.loadCountFromWebsql();
 			this.loadNoteFromWebsql();
 		},
-		render: function() {
+		render: function() { 
+			console.log('app render');
 			return (
-				<div onClick={this.appClick} onKeyUp={this.appKeyUp}>
+				<div onClick={this.appClick} onKeyDown={this.appKeyDown} onKeyUp={this.appKeyUp}>
 				<div className="alert alert-danger" ref='error' role="alert" style={{display:'none'}}>
 					<button type="button" className="close">
 						<span className="alert-danger">&times;</span>
 					</button>
 					<div className="alert-danger" ref='errorContent'></div>
 				</div>
-				<NoteList notes={this.state.notes}></NoteList>
+				<NoteList notes={this.state.notes} clearStatus={this.state.clearStatus}></NoteList>
 				<StatusBar count={this.state.count} ></StatusBar>
 				<Dialog ref='dialog'/>
 				</div>
@@ -426,7 +427,7 @@ define(function(require, exports, module) {
 
 	$(function() {
 		ReactDOM.render(
-			<NoteApp ></NoteApp>,
+			<NoteApp/>,
 			$('.content').get(0)
 		);
 

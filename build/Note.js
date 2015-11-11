@@ -14,31 +14,26 @@ define(function (require, exports, module) {
 	// 	title: "not null",
 	// 	content: ""
 	// }, function(message) {
-	// 	console.log(message);
 	// });
 
 	// dbHelper.select('LOGS', '*', {
 	// 	"id": 2
 	// }, function(message) {
-	// 	console.log(message);
 	// 	if (message.success) {
 	// 		for (var i = 0; i < message.result.rows.length; i++) {
-	// 			console.log(message.result.rows[i]);
 	// 		};
 	// 	};
 	// });
 
 	// dbHelper.dropTable('test', function(message) {
-	// 	console.log(message);		
 	// });
 	// dbHelper.update('LOGS',{log:'update'},{
 	// 	id:2
 	// }, function(message) {
-	// 	console.log(message);		
 	// });
 	// dbHelper.delete('LOGS',{"id": 1});
 	// dbHelper.createTable('test',{id:"integer primary key autoincrement",name:"not null"},function(message){
-	// 	 console.log(message);
+
 	// });
 
 	// dbHelper.insert('Notes',{	
@@ -46,7 +41,6 @@ define(function (require, exports, module) {
 	// 	title:(new Date()).getTime(),
 	// 	content:'tes1t'
 	// },function(message){
-	// 	console.log(message);
 	// });
 	//
 	//
@@ -81,6 +75,7 @@ define(function (require, exports, module) {
 		displayName: 'NoteHead',
 
 		render: function render() {
+			var str = "btn-clear " + this.props.clearStatus;
 			return React.createElement(
 				'div',
 				{ className: 'text-center topBar' },
@@ -110,7 +105,7 @@ define(function (require, exports, module) {
 				),
 				React.createElement(
 					'div',
-					{ className: 'btn-clear hide' },
+					{ className: str },
 					React.createElement(
 						'button',
 						{ type: 'button', className: 'clearBtn' },
@@ -136,7 +131,7 @@ define(function (require, exports, module) {
 			return React.createElement(
 				'div',
 				null,
-				React.createElement(NoteHead, { addNote: this.props.addNote }),
+				React.createElement(NoteHead, { addNote: this.props.addNote, clearStatus: this.props.clearStatus }),
 				React.createElement(
 					'table',
 					{ className: 'NoteList table table-hover table-striped' },
@@ -349,12 +344,17 @@ define(function (require, exports, module) {
 		},
 		clearFilter: function clearFilter() {
 			$('.txt-search').val('');
-			$('.btn-clear').addClass('hide');
+			this.setState({
+				clearStatus: 'hide'
+			});
 			this.loadCountFromWebsql();
 			this.loadNoteFromWebsql();
 		},
 		runFilter: function runFilter(serKey) {
-			$('.btn-clear').removeClass('hide');
+
+			this.setState({
+				clearStatus: 'show'
+			});
 			this.loadCountFromWebsql({
 				title: '%' + serKey + '%'
 			});
@@ -392,7 +392,6 @@ define(function (require, exports, module) {
 			$(this.refs.error).hide();
 		},
 		showDialog: function showDialog() {
-			console.log(this.props.children);
 			$(this.refs.dialog.refs.form).data('bootstrapValidator').resetForm();
 			$(this.refs.dialog.refs.dialogDiv).modal('show');
 		},
@@ -484,7 +483,8 @@ define(function (require, exports, module) {
 		getInitialState: function getInitialState() {
 			return {
 				count: 0,
-				notes: []
+				notes: [],
+				clearStatus: 'hide'
 			};
 		},
 		componentDidMount: function componentDidMount() {
@@ -492,9 +492,10 @@ define(function (require, exports, module) {
 			this.loadNoteFromWebsql();
 		},
 		render: function render() {
+			console.log('app render');
 			return React.createElement(
 				'div',
-				{ onClick: this.appClick, onKeyUp: this.appKeyUp },
+				{ onClick: this.appClick, onKeyDown: this.appKeyDown, onKeyUp: this.appKeyUp },
 				React.createElement(
 					'div',
 					{ className: 'alert alert-danger', ref: 'error', role: 'alert', style: { display: 'none' } },
@@ -509,7 +510,7 @@ define(function (require, exports, module) {
 					),
 					React.createElement('div', { className: 'alert-danger', ref: 'errorContent' })
 				),
-				React.createElement(NoteList, { notes: this.state.notes }),
+				React.createElement(NoteList, { notes: this.state.notes, clearStatus: this.state.clearStatus }),
 				React.createElement(StatusBar, { count: this.state.count }),
 				React.createElement(Dialog, { ref: 'dialog' })
 			);
