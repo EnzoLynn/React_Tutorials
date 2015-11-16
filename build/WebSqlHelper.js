@@ -131,9 +131,10 @@ define(function (require, exports, module) {
 					return false;
 				});
 			}, function (tx, errmsg) {
-				console.log("transaction errer: " + errmsg);
+				console.log("transaction errer: " + tx.message);
 				return false;
 			}, function (tx, result) {
+				console.log("transaction success.");
 				return true;
 			});
 		},
@@ -234,6 +235,7 @@ define(function (require, exports, module) {
 					sql += where;
 				};
 			};
+
 			me.executeSql(sql, params, function (tx, result) {
 				if (typeof callback == 'function') {
 					callback(new message({

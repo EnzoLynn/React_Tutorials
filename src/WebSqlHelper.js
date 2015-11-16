@@ -102,11 +102,11 @@ define(function(require, exports, module) {
 			const me = this;
 			if (me.db == null) {
 				me.openDatabase();
-			}
+			} 
 			//transaction(querysqlFun, errorCallback, successCallback); 
-			me.db.transaction(function(tx) {
+			me.db.transaction(function(tx) { 
 				// executeSql(sqlStatement, arguments, callback, errorCallback); 
-				tx.executeSql(sql, params, function(tx, result) {
+				tx.executeSql(sql, params, function(tx, result) { 
 					if (typeof(sucFun) == 'function') {
 						sucFun(tx, result);
 					}
@@ -118,10 +118,11 @@ define(function(require, exports, module) {
 					return false;
 				});
 
-			}, function(tx, errmsg) {
-				console.log(`transaction errer: ${errmsg}`);
+			}, function(tx, errmsg) { 
+				console.log(`transaction errer: ${tx.message}`);
 				return false;
-			}, function(tx, result) {
+			}, function(tx, result) { 
+				console.log(`transaction success.`);
 				return true;
 			});
 
@@ -223,8 +224,9 @@ define(function(require, exports, module) {
 					sql += where;
 				};
 				
-			}; 
-			me.executeSql(sql, params, function(tx, result) {
+			};  
+			
+			me.executeSql(sql, params, function(tx, result) { 
 				if (typeof(callback) == 'function') {
 					callback(new message({
 						success: true,
@@ -233,7 +235,7 @@ define(function(require, exports, module) {
 					}));
 				}
 				return true;
-			}, function(tx, errmsg) {
+			}, function(tx, errmsg) { 
 				if (typeof(callback) == 'function') {
 					callback(new message({
 						success: false,

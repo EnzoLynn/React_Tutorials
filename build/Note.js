@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 	var bsValidator = require('bootstrapValidator.sea')($);
 
 	var dbHelper = require('build/WebSqlHelper');
+
 	dbHelper.openDatabase();
 
 	// dbHelper.createTable('Notes', {
@@ -294,7 +295,7 @@ define(function (require, exports, module) {
 			e.stopPropagation();
 			var target = e.target;
 
-			console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
+			//console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
 			if (target.tagName.toLowerCase() == "input") {
 				if (target.type.toLowerCase() == "button") {
 					if ($(target).hasClass('btn-addNote')) {
@@ -367,7 +368,7 @@ define(function (require, exports, module) {
 			e.stopPropagation();
 			var target = e.target;
 
-			console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
+			//console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
 			if (target.tagName.toLowerCase() == "input") {
 				if (target.type.toLowerCase() == "search") {
 					if ($(target).hasClass('txt-search')) {
@@ -400,22 +401,22 @@ define(function (require, exports, module) {
 
 			var form = $(this.refs.dialog.refs.form).data('bootstrapValidator');
 			form.validate();
-			if (form.isValid()) {
-				var title = this.refs.dialog.refs.title.value;
-				var content = this.refs.dialog.refs.content.value;
-				dbHelper.insert('Notes', {
-					title: title,
-					content: content + ' <br> ' + new Date().getTime()
-				}, function (message) {
-					if (message.success) {
-						$(me.refs.dialog.refs.dialogDiv).modal('hide');
-						me.loadCountFromWebsql();
-						me.loadNoteFromWebsql();
-					} else {
-						me.showError(message);
-					}
-				});
-			}
+			//if (form.isValid()) {
+			var title = this.refs.dialog.refs.title.value;
+			var content = this.refs.dialog.refs.content.value;
+			dbHelper.insert('Notes', {
+				title: title,
+				content: content + ' <br> ' + new Date().getTime()
+			}, function (message) {
+				if (message.success) {
+					$(me.refs.dialog.refs.dialogDiv).modal('hide');
+					me.loadCountFromWebsql();
+					me.loadNoteFromWebsql();
+				} else {
+					me.showError(message);
+				}
+			});
+			//}
 		},
 		viewNote: function viewNote(noteid) {
 			var me = this;
@@ -424,6 +425,7 @@ define(function (require, exports, module) {
 			dbHelper.select('Notes', '*', {
 				id: noteid
 			}, function (message) {
+
 				if (message.success) {
 					me.refs.dialog.refs.title.value = message.result.rows[0].title;
 					me.refs.dialog.refs.content.value = message.result.rows[0].content;
@@ -492,7 +494,7 @@ define(function (require, exports, module) {
 			this.loadNoteFromWebsql();
 		},
 		render: function render() {
-			console.log('app render');
+			//console.log('app render');
 			return React.createElement(
 				'div',
 				{ onClick: this.appClick, onKeyDown: this.appKeyDown, onKeyUp: this.appKeyUp },
