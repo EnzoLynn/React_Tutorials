@@ -235,7 +235,6 @@ define(function (require, exports, module) {
 					sql += where;
 				};
 			};
-
 			me.executeSql(sql, params, function (tx, result) {
 				if (typeof callback == 'function') {
 					callback(new message({

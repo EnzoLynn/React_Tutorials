@@ -44,51 +44,59 @@ $(function() {
 	(() => {
 		console.log('Welcome to the Internet.');
 	})();
- 
-	const a  = 'foobar';
+
+	const a = 'foobar';
 	const b = `foo${a}bar`;
 	const c = 'foobar';
 
 	console.log(b);
 
 	const arr = [1, 2, 3, 4];
- 
+
 
 	// good
 	const [first, second] = arr;
 	console.log(first);
- 	
- 	const user = {
- 		firstName : 'aaa',
- 		lastName:'bbb'
- 	};
- 	// best
-	function getFullName({ firstName, lastName }) {
+
+	const user = {
+		firstName: 'aaa',
+		lastName: 'bbb'
+	};
+	// best
+	function getFullName({
+		firstName, lastName
+	}) {
 		console.log(firstName);
 	}
 	getFullName(user);
 
 	var input = {
-		left:1,
-		right:2,
-		top:3,
-		bottom:4 
+		left: 1,
+		right: 2,
+		top: 3,
+		bottom: 4
 	};
 	// good
-	function processInput({ left, right, top, bottom}) {
-	 //const { left, right, top, bottom} = input;
-	 return { left, right, top, bottom};
+	function processInput({
+		left, right, top, bottom
+	}) {
+		//const { left, right, top, bottom} = input;
+		return {
+			left, right, top, bottom
+		};
 	}
 
-	const { left, right,bottom } = processInput(input);
+	const {
+		left, right, bottom
+	} = processInput(input);
 
-	console.log(left+'='+bottom);
+	console.log(left + '=' + bottom);
 
-		// good
+	// good
 	var dd = [1, 2, 3].map((x) => {
-	  console.log(x);
-	  return x * x;
-	}); 
+		console.log(x);
+		return x * x;
+	});
 
 	var db = openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024);
 
@@ -103,7 +111,7 @@ $(function() {
 			var len = results.rows.length,
 				i;
 			var msg = "<p>Found rows: " + len + "</p>";
-			console.log(msg); 
+			console.log(msg);
 
 			for (i = 0; i < len; i++) {
 				console.log(results.rows.item(i).log);
@@ -111,4 +119,16 @@ $(function() {
 
 		}, null);
 	});
+
+
+	function a1() {
+		var funcs = [];
+		for (let i = 0; i < 10; i++) {  			
+			funcs[i] =  function(){
+					return i;
+				};
+		}
+		return funcs;
+	}
+	console.log(a1());
 });

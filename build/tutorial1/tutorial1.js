@@ -84,7 +84,9 @@ $(function () {
 		var bottom = _ref2.bottom;
 
 		//const { left, right, top, bottom} = input;
-		return { left: left, right: right, top: top, bottom: bottom };
+		return {
+			left: left, right: right, top: top, bottom: bottom
+		};
 	}
 
 	var _processInput = processInput(input);
@@ -121,4 +123,20 @@ $(function () {
 			}
 		}, null);
 	});
+
+	function a1() {
+		var funcs = [];
+
+		var _loop = function (i) {
+			funcs[i] = function () {
+				return i;
+			};
+		};
+
+		for (var i = 0; i < 10; i++) {
+			_loop(i);
+		}
+		return funcs;
+	}
+	console.log(a1());
 });

@@ -5,15 +5,14 @@ define(function(require, exports, module) {
 	var bsValidator = require('bootstrapValidator.sea')($);
 
 	var dbHelper = require('build/WebSqlHelper');
-	
+
 	dbHelper.openDatabase();
 
-	// dbHelper.createTable('Notes', {
-	// 	id: "integer primary key autoincrement",
-	// 	title: "not null",
-	// 	content: ""
-	// }, function(message) { 
-	// });
+	dbHelper.createTable('Notes', {
+		id: "integer primary key autoincrement",
+		title: "not null",
+		content: ""
+	}, function(message) {});
 
 
 	// dbHelper.select('LOGS', '*', {
@@ -33,7 +32,7 @@ define(function(require, exports, module) {
 	// });
 	// dbHelper.delete('LOGS',{"id": 1});
 	// dbHelper.createTable('test',{id:"integer primary key autoincrement",name:"not null"},function(message){
-	 
+
 	// });
 
 	// dbHelper.insert('Notes',{	
@@ -64,7 +63,7 @@ define(function(require, exports, module) {
 	let NoteHead = React.createClass({
 
 		render: function() {
-		 	var str = "btn-clear " +  this.props.clearStatus;  
+			var str = "btn-clear " + this.props.clearStatus;
 			return (
 				<div className='text-center topBar'>
 					<div>
@@ -91,7 +90,7 @@ define(function(require, exports, module) {
 
 
 	let NoteList = React.createClass({
-		render: function() {  
+		render: function() {
 			var rows = [];
 			this.props.notes.forEach(function(note, key) {
 				rows.push(<NoteRows key={key} note={note}/>);
@@ -113,7 +112,7 @@ define(function(require, exports, module) {
 
 	let StatusBar = React.createClass({
 
-		render: function() { 
+		render: function() {
 			return (
 				<div className='text-center statusBar'>
 					{this.props.count} 个备忘录
@@ -160,7 +159,7 @@ define(function(require, exports, module) {
 				}
 			});
 		},
-		render: function() { 
+		render: function() {
 			return (
 				<div>
 					 <div className="modal fade" ref='dialogDiv' tabIndex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -265,7 +264,7 @@ define(function(require, exports, module) {
 			this.loadNoteFromWebsql();
 		},
 		runFilter: function(serKey) {
-			
+
 			this.setState({
 				clearStatus: 'show'
 			});
@@ -275,7 +274,7 @@ define(function(require, exports, module) {
 			this.loadNoteFromWebsql({
 				title: `%${serKey}%`
 			});
-		} ,
+		},
 		appKeyUp: function(e) {
 			var me = this;
 			e.stopPropagation();
@@ -284,9 +283,9 @@ define(function(require, exports, module) {
 
 			//console.log(target.tagName + '--' + target.type + '--' + $(target).attr('class'));
 			if (target.tagName.toLowerCase() == "input") {
-				if (target.type.toLowerCase() == "search") { 
-					if ($(target).hasClass('txt-search')) { 
-						var serKey = $(target).val(); 
+				if (target.type.toLowerCase() == "search") {
+					if ($(target).hasClass('txt-search')) {
+						var serKey = $(target).val();
 						if (serKey != "") {
 							me.runFilter(serKey);
 						} else {
@@ -306,7 +305,7 @@ define(function(require, exports, module) {
 			$(this.refs.errorContent).html('');
 			$(this.refs.error).hide();
 		},
-		showDialog: function() { 
+		showDialog: function() {
 			$(this.refs.dialog.refs.form).data('bootstrapValidator').resetForm();
 			$(this.refs.dialog.refs.dialogDiv).modal('show');
 		},
@@ -315,13 +314,13 @@ define(function(require, exports, module) {
 
 			var form = $(this.refs.dialog.refs.form).data('bootstrapValidator');
 			form.validate();
-			//if (form.isValid()) {
+			if (form.isValid()) {
 				var title = this.refs.dialog.refs.title.value;
 				var content = this.refs.dialog.refs.content.value;
 				dbHelper.insert('Notes', {
 					title: title,
 					content: `${content} <br> ${(new Date()).getTime()}`
-				}, function(message) { 
+				}, function(message) {
 					if (message.success) {
 						$(me.refs.dialog.refs.dialogDiv).modal('hide');
 						me.loadCountFromWebsql();
@@ -330,7 +329,7 @@ define(function(require, exports, module) {
 						me.showError(message);
 					}
 				});
-			//}
+			}
 		},
 		viewNote: function(noteid) {
 			var me = this;
@@ -367,8 +366,8 @@ define(function(require, exports, module) {
 		loadNoteFromWebsql: function(opts) {
 			var me = this;
 			let def = {};
-			def = $.extend(def, opts); 
-			dbHelper.select('Notes', '*', def, function(message) {  
+			def = $.extend(def, opts);
+			dbHelper.select('Notes', '*', def, function(message) { 
 				if (message.success) {
 					var arr = [];
 
@@ -402,14 +401,14 @@ define(function(require, exports, module) {
 			return {
 				count: 0,
 				notes: [],
-				clearStatus: 'hide' 
+				clearStatus: 'hide'
 			};
 		},
 		componentDidMount: function() {
 			this.loadCountFromWebsql();
 			this.loadNoteFromWebsql();
 		},
-		render: function() { 
+		render: function() {
 			//console.log('app render');
 			return (
 				<div onClick={this.appClick} onKeyDown={this.appKeyDown} onKeyUp={this.appKeyUp}>

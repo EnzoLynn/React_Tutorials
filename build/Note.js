@@ -10,12 +10,11 @@ define(function (require, exports, module) {
 
 	dbHelper.openDatabase();
 
-	// dbHelper.createTable('Notes', {
-	// 	id: "integer primary key autoincrement",
-	// 	title: "not null",
-	// 	content: ""
-	// }, function(message) {
-	// });
+	dbHelper.createTable('Notes', {
+		id: "integer primary key autoincrement",
+		title: "not null",
+		content: ""
+	}, function (message) {});
 
 	// dbHelper.select('LOGS', '*', {
 	// 	"id": 2
@@ -401,22 +400,22 @@ define(function (require, exports, module) {
 
 			var form = $(this.refs.dialog.refs.form).data('bootstrapValidator');
 			form.validate();
-			//if (form.isValid()) {
-			var title = this.refs.dialog.refs.title.value;
-			var content = this.refs.dialog.refs.content.value;
-			dbHelper.insert('Notes', {
-				title: title,
-				content: content + ' <br> ' + new Date().getTime()
-			}, function (message) {
-				if (message.success) {
-					$(me.refs.dialog.refs.dialogDiv).modal('hide');
-					me.loadCountFromWebsql();
-					me.loadNoteFromWebsql();
-				} else {
-					me.showError(message);
-				}
-			});
-			//}
+			if (form.isValid()) {
+				var title = this.refs.dialog.refs.title.value;
+				var content = this.refs.dialog.refs.content.value;
+				dbHelper.insert('Notes', {
+					title: title,
+					content: content + ' <br> ' + new Date().getTime()
+				}, function (message) {
+					if (message.success) {
+						$(me.refs.dialog.refs.dialogDiv).modal('hide');
+						me.loadCountFromWebsql();
+						me.loadNoteFromWebsql();
+					} else {
+						me.showError(message);
+					}
+				});
+			}
 		},
 		viewNote: function viewNote(noteid) {
 			var me = this;

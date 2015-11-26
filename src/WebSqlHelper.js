@@ -82,7 +82,7 @@ define(function(require, exports, module) {
 				size: 2 * 1024 * 1024
 			};
 			def = jquery.extend(def, opts);
-			me.db = openDatabase(def.databaseName, def.version, def.description, def.size);
+			me.db = openDatabase(def.databaseName, def.version, def.description, def.size); 
 			return me.db;
 		},
 		/**
@@ -224,8 +224,7 @@ define(function(require, exports, module) {
 					sql += where;
 				};
 				
-			};  
-			
+			};   
 			me.executeSql(sql, params, function(tx, result) { 
 				if (typeof(callback) == 'function') {
 					callback(new message({
